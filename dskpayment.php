@@ -171,15 +171,49 @@ class DskPayment extends PaymentModule
         }
     }
 
-    public function checkCurrency($cart): bool
+    public function hookDisplayProductAdditionalInfo($params): void
     {
-        $currency_order = new Currency($cart->id_currency);
-        $currencies_module = $this->getCurrency($cart->id_currency);
-        if (is_array($currencies_module))
-            foreach ($currencies_module as $currency_module)
-                if ($currency_order->id == $currency_module['id_currency'])
-                    return true;
-        return false;
+    }
+
+    public function hookDisplayShoppingCart($params): void
+    {
+    }
+
+    public function hookPaymentOptions($params)
+    {
+        if (empty($params['cart'])) {
+            return [];
+        }
+
+        $cart = $params['cart'];
+
+        if ($cart->isVirtualCart()) {
+            return [];
+        }
+
+        $dskapi_cid = (string) Configuration::get('dskapi_cid');
+        $dskapi_price = (float) $cart->getOrderTotal(true);
+
+        $this->context->smarty->assign([
+        ]);
+
+        $payment_options = [];
+
+        $newOption_JET = new PaymentOption();
+        $newOption_JET->setModuleName($this->name);
+        $newOption_JET->setCallToActionText('ПБ Лични Финанси');
+        $newOption_JET->setAdditionalInformation($this->fetch('module:creditjet/views/templates/hook/jet_checkout.tpl'));
+        $payment_options[] = $newOption_JET;
+
+        if ($jet_card_in == 1) {
+            $newOption_JET_CARD = new PaymentOption();
+            $newOption_JET_CARD->setModuleName($this->name . 'card');
+            $newOption_JET_CARD->setCallToActionText('ПБ Лични Финанси - на вноски с кредитна карта');
+            $newOption_JET_CARD->setAdditionalInformation($this->fetch('module:creditjet/views/templates/hook/jet_checkout_card.tpl'));
+            $payment_options[] = $newOption_JET_CARD;
+        }
+
+        return $payment_options;
     }
 
 }
