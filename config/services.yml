@@ -1,0 +1,30 @@
+services:
+  _defaults:
+    public: true
+
+  # DskPayment configuration form
+  prestashop.module.dskpayment.form.type.dskpayment_configuration:
+    class: 'PrestaShop\Module\DskPayment\Form\DskPaymentConfigurationType'
+    parent: 'form.type.translatable.aware'
+    public: true
+    tags:
+      - { name: form.type }
+
+  prestashop.module.dskpayment.form.dskpayment_configuration_data_configuration:
+    class: PrestaShop\Module\DskPayment\Form\DskPaymentConfigurationDataConfiguration
+    arguments: ['@prestashop.adapter.legacy.configuration']
+
+  prestashop.module.dskpayment.form.dskpayment_configuration_form_data_provider:
+    class: 'PrestaShop\Module\DskPayment\Form\DskPaymentConfigurationFormDataProvider'
+    arguments:
+      - '@prestashop.module.dskpayment.form.dskpayment_configuration_data_configuration'
+
+  prestashop.module.dskpayment.dskpayment_configuration_form_handler:
+    class: 'PrestaShop\PrestaShop\Core\Form\Handler'
+    arguments:
+      - '@form.factory'
+      - '@prestashop.core.hook.dispatcher'
+      - '@prestashop.module.dskpayment.form.dskpayment_configuration_form_data_provider'
+      - 'PrestaShop\Module\DskPayment\Form\DskPaymentConfigurationType'
+      - 'DskPaymentConfiguration'
+      

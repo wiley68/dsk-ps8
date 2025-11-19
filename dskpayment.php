@@ -110,74 +110,91 @@ class DskPayment extends PaymentModule
     public function hookActionFrontControllerSetMedia($params): void
     {
         if ('product' === $this->context->controller->php_self) {
-            $this->context->controller->registerJavascript(
-                'module-dskpayment-product-js',
-                'modules/' . $this->name . '/js/dskpayment_product.js',
-                [
-                    'priority' => 200,
-                    'attribute' => 'async',
-                    'version' => filemtime(_PS_MODULE_DIR_ . $this->name . '/js/dskpayment_product.js')
-                ]
-            );
-            $this->context->controller->registerStylesheet(
-                'module-dskpayment-product-css',
-                'modules/' . $this->name . '/css/dskpayment_product.css',
-                [
-                    'media' => 'all',
-                    'priority' => 200,
-                    'version' => filemtime(_PS_MODULE_DIR_ . $this->name . '/css/dskpayment_product.css')
-                ]
-            );
+            $productJsPath = _PS_MODULE_DIR_ . $this->name . '/js/dskpayment_product.js';
+            $productCssPath = _PS_MODULE_DIR_ . $this->name . '/css/dskpayment_product.css';
+
+            if (file_exists($productJsPath)) {
+                $this->context->controller->registerJavascript(
+                    'module-dskpayment-product-js',
+                    'modules/' . $this->name . '/js/dskpayment_product.js',
+                    [
+                        'priority' => 200,
+                        'attribute' => 'async',
+                        'version' => filemtime($productJsPath)
+                    ]
+                );
+            }
+            if (file_exists($productCssPath)) {
+                $this->context->controller->registerStylesheet(
+                    'module-dskpayment-product-css',
+                    'modules/' . $this->name . '/css/dskpayment_product.css',
+                    [
+                        'media' => 'all',
+                        'priority' => 200,
+                        'version' => filemtime($productCssPath)
+                    ]
+                );
+            }
         }
         if ('cart' === $this->context->controller->php_self) {
-            $this->context->controller->registerStylesheet(
-                'module-dskpayment-cart-css',
-                'modules/' . $this->name . '/css/dskpayment_cart.css',
-                [
-                    'media' => 'all',
-                    'priority' => 200,
-                    'version' => filemtime(_PS_MODULE_DIR_ . $this->name . '/css/dskpayment_cart.css')
-                ]
-            );
-            $this->context->controller->registerJavascript(
-                'module-dskpayment-cart-js',
-                'modules/' . $this->name . '/js/dskpayment_cart.js',
-                [
-                    'priority' => 200,
-                    'attribute' => 'async',
-                    'version' => filemtime(_PS_MODULE_DIR_ . $this->name . '/js/dskpayment_cart.js')
-                ]
-            );
+            $cartJsPath = _PS_MODULE_DIR_ . $this->name . '/js/dskpayment_cart.js';
+            $cartCssPath = _PS_MODULE_DIR_ . $this->name . '/css/dskpayment_cart.css';
+
+            if (file_exists($cartCssPath)) {
+                $this->context->controller->registerStylesheet(
+                    'module-dskpayment-cart-css',
+                    'modules/' . $this->name . '/css/dskpayment_cart.css',
+                    [
+                        'media' => 'all',
+                        'priority' => 200,
+                        'version' => filemtime($cartCssPath)
+                    ]
+                );
+            }
+            if (file_exists($cartJsPath)) {
+                $this->context->controller->registerJavascript(
+                    'module-dskpayment-cart-js',
+                    'modules/' . $this->name . '/js/dskpayment_cart.js',
+                    [
+                        'priority' => 200,
+                        'attribute' => 'async',
+                        'version' => filemtime($cartJsPath)
+                    ]
+                );
+            }
         }
         if ('order' === $this->context->controller->php_self) {
-            $this->context->controller->registerStylesheet(
-                'module-dskpayment-checkout-css',
-                'modules/' . $this->name . '/css/dskpayment_checkout.css',
-                [
-                    'media' => 'all',
-                    'priority' => 200,
-                    'version' => filemtime(_PS_MODULE_DIR_ . $this->name . '/css/dskpayment_checkout.css')
-                ]
-            );
-            $this->context->controller->registerJavascript(
-                'module-dskpayment-checkout-js',
-                'modules/' . $this->name . '/js/dskpayment_checkout.js',
-                [
-                    'priority' => 200,
-                    'attribute' => 'async',
-                    'version' => filemtime(_PS_MODULE_DIR_ . $this->name . '/js/dskpayment_checkout.js')
-                ]
-            );
+            $checkoutJsPath = _PS_MODULE_DIR_ . $this->name . '/js/dskpayment_checkout.js';
+            $checkoutCssPath = _PS_MODULE_DIR_ . $this->name . '/css/dskpayment_checkout.css';
+
+            if (file_exists($checkoutCssPath)) {
+                $this->context->controller->registerStylesheet(
+                    'module-dskpayment-checkout-css',
+                    'modules/' . $this->name . '/css/dskpayment_checkout.css',
+                    [
+                        'media' => 'all',
+                        'priority' => 200,
+                        'version' => filemtime($checkoutCssPath)
+                    ]
+                );
+            }
+            if (file_exists($checkoutJsPath)) {
+                $this->context->controller->registerJavascript(
+                    'module-dskpayment-checkout-js',
+                    'modules/' . $this->name . '/js/dskpayment_checkout.js',
+                    [
+                        'priority' => 200,
+                        'attribute' => 'async',
+                        'version' => filemtime($checkoutJsPath)
+                    ]
+                );
+            }
         }
     }
 
-    public function hookDisplayProductAdditionalInfo($params): void
-    {
-    }
+    public function hookDisplayProductAdditionalInfo($params): void {}
 
-    public function hookDisplayShoppingCart($params): void
-    {
-    }
+    public function hookDisplayShoppingCart($params): void {}
 
     public function hookPaymentOptions($params)
     {
@@ -194,26 +211,96 @@ class DskPayment extends PaymentModule
         $dskapi_cid = (string) Configuration::get('dskapi_cid');
         $dskapi_price = (float) $cart->getOrderTotal(true);
 
+        $dskapi_ch = curl_init();
+        curl_setopt($dskapi_ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($dskapi_ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($dskapi_ch, CURLOPT_MAXREDIRS, 3);
+        curl_setopt($dskapi_ch, CURLOPT_TIMEOUT, 6);
+        curl_setopt($dskapi_ch, CURLOPT_URL, DSKAPI_LIVEURL . '/function/getminmax.php?cid=' . $dskapi_cid);
+
+        $response = curl_exec($dskapi_ch);
+        $httpCode = curl_getinfo($dskapi_ch, CURLINFO_HTTP_CODE);
+        curl_close($dskapi_ch);
+        if ($response === false || $httpCode !== 200) {
+            return [];
+        }
+        $paramsdskapi = json_decode($response, true);
+        if ($paramsdskapi === null) {
+            return [];
+        }
+
+        $dskapi_minstojnost = (float) $paramsdskapi['dsk_minstojnost'];
+        $dskapi_maxstojnost = (float) $paramsdskapi['dsk_maxstojnost'];
+        $dskapi_min_000 = (float) $paramsdskapi['dsk_min_000'];
+        $dskapi_status_cp = (string) $paramsdskapi['dsk_status'];
+
+        $dskapi_purcent = (float) $paramsdskapi['dsk_purcent'];
+        $dskapi_vnoski_default = (int) $paramsdskapi['dsk_vnoski_default'];
+        if (($dskapi_purcent === 0) && ($dskapi_vnoski_default <= 6)) {
+            $dskapi_minstojnost = $dskapi_min_000;
+        }
+
+        if (!$this->context->currency || !$this->context->currency->iso_code) {
+            return [];
+        }
+
+        $dskapi_eur = 0;
+        $dskapi_currency_code = $this->context->currency->iso_code;
+
+        $dskapi_ch_eur = curl_init();
+        curl_setopt($dskapi_ch_eur, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($dskapi_ch_eur, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($dskapi_ch_eur, CURLOPT_MAXREDIRS, 3);
+        curl_setopt($dskapi_ch_eur, CURLOPT_TIMEOUT, 5);
+        curl_setopt($dskapi_ch_eur, CURLOPT_URL, DSKAPI_LIVEURL . '/function/geteur.php?cid=' . $dskapi_cid);
+
+        $response = curl_exec($dskapi_ch_eur);
+        $httpCode = curl_getinfo($dskapi_ch_eur, CURLINFO_HTTP_CODE);
+        curl_close($dskapi_ch_eur);
+        if ($response === false || $httpCode !== 200) {
+            return [];
+        }
+        $paramsdskapieur = json_decode($response, true);
+        if ($paramsdskapieur === null) {
+            return [];
+        }
+
+        $dskapi_eur = (int)$paramsdskapieur['dsk_eur'];
+        switch ($dskapi_eur) {
+            case 0:
+                break;
+            case 1:
+                if ($dskapi_currency_code == "EUR") {
+                    $dskapi_price = (float) number_format($dskapi_price * 1.95583, 2, ".", "");
+                }
+                break;
+            case 2:
+                if ($dskapi_currency_code == "BGN") {
+                    $dskapi_price = (float) number_format($dskapi_price / 1.95583, 2, ".", "");
+                }
+                break;
+        }
+
+        if (
+            $dskapi_status_cp == 0 ||
+            $dskapi_price < $dskapi_minstojnost ||
+            $dskapi_price > $dskapi_maxstojnost
+        ) {
+            return [];
+        }
+
         $this->context->smarty->assign([
+            'dskapi_logo' => _MODULE_DIR_ . $this->name . '/logo.png'
         ]);
 
         $payment_options = [];
 
-        $newOption_JET = new PaymentOption();
-        $newOption_JET->setModuleName($this->name);
-        $newOption_JET->setCallToActionText('ПБ Лични Финанси');
-        $newOption_JET->setAdditionalInformation($this->fetch('module:creditjet/views/templates/hook/jet_checkout.tpl'));
-        $payment_options[] = $newOption_JET;
-
-        if ($jet_card_in == 1) {
-            $newOption_JET_CARD = new PaymentOption();
-            $newOption_JET_CARD->setModuleName($this->name . 'card');
-            $newOption_JET_CARD->setCallToActionText('ПБ Лични Финанси - на вноски с кредитна карта');
-            $newOption_JET_CARD->setAdditionalInformation($this->fetch('module:creditjet/views/templates/hook/jet_checkout_card.tpl'));
-            $payment_options[] = $newOption_JET_CARD;
-        }
+        $newOption_DSK = new PaymentOption();
+        $newOption_DSK->setModuleName($this->name);
+        $newOption_DSK->setCallToActionText('DSK Credit API покупки на Кредит');
+        $newOption_DSK->setAdditionalInformation($this->fetch('module:dskpayment/views/templates/hook/dskpayment_checkout.tpl'));
+        $payment_options[] = $newOption_DSK;
 
         return $payment_options;
     }
-
 }
