@@ -1,0 +1,38 @@
+# Общи IDE/редактор файлове
+.idea/
+.vscode/
+*.iml
+*.swp
+*.swo
+*.orig
+
+# Системни файлове
+.DS_Store
+Thumbs.db
+
+# Composer
+vendor/
+composer.lock
+
+# Node/npm (ако се използва фронтенд билд)
+node_modules/
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+.parcel-cache/
+.cache/
+dist/
+build/
+
+# Генерирани логове и временни файлове
+*.log
+*.tmp
+*.cache
+*.bak
+
+# PrestaShop специфични
+
+# Локални настройки
+.env
+.env.local
+
