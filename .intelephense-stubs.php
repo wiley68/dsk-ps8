@@ -24,17 +24,28 @@ namespace {
 
     class Module
     {
-        public string $name = '';
-        public string $version = '';
-        public string $author = '';
-        public string $tab = '';
-        public int $need_instance = 0;
-        public bool $bootstrap = false;
-        public array $ps_versions_compliancy = [];
-        public string $displayName = '';
-        public string $description = '';
-        public string $confirmUninstall = '';
-        public string $warning = '';
+        /** @var string */
+        public $name = '';
+        /** @var string */
+        public $version = '';
+        /** @var string */
+        public $author = '';
+        /** @var string */
+        public $tab = '';
+        /** @var int */
+        public $need_instance = 0;
+        /** @var bool */
+        public $bootstrap = false;
+        /** @var array */
+        public $ps_versions_compliancy = [];
+        /** @var string */
+        public $displayName = '';
+        /** @var string */
+        public $description = '';
+        /** @var string */
+        public $confirmUninstall = '';
+        /** @var string */
+        public $warning = '';
 
         public function __construct() {}
 
@@ -85,7 +96,8 @@ namespace {
 
     class PaymentModule extends Module
     {
-        public Context $context;
+        /** @var Context */
+        public $context;
 
         public function validateOrder(
             int $cartId,
@@ -111,19 +123,30 @@ namespace {
 
     class Context
     {
-        public static ?Context $instance = null;
+        /** @var Context|null */
+        public static $instance = null;
 
-        public ?Cart $cart = null;
-        public ?Customer $customer = null;
-        public ?Currency $currency = null;
-        public ?Language $language = null;
-        public ?Shop $shop = null;
-        public ?Controller $controller = null;
-        public ?Smarty $smarty = null;
+        /** @var Cart|null */
+        public $cart = null;
+        /** @var Customer|null */
+        public $customer = null;
+        /** @var Currency|null */
+        public $currency = null;
+        /** @var Language|null */
+        public $language = null;
+        /** @var Shop|null */
+        public $shop = null;
+        /** @var Controller|null */
+        public $controller = null;
+        /** @var Smarty|null */
+        public $smarty = null;
 
         public static function getContext(): self
         {
-            return self::$instance ??= new self();
+            if (self::$instance === null) {
+                self::$instance = new self();
+            }
+            return self::$instance;
         }
     }
 
@@ -142,11 +165,16 @@ namespace {
         public const ONLY_PRODUCTS = 1;
         public const BOTH = 3;
 
-        public int $id;
-        public ?int $id_customer = null;
-        public ?int $id_currency = null;
-        public ?int $id_address_delivery = null;
-        public ?int $id_address_invoice = null;
+        /** @var int */
+        public $id;
+        /** @var int|null */
+        public $id_customer = null;
+        /** @var int|null */
+        public $id_currency = null;
+        /** @var int|null */
+        public $id_address_delivery = null;
+        /** @var int|null */
+        public $id_address_invoice = null;
 
         public function getOrderTotal(bool $withTaxes, int $type = self::BOTH): float
         {
@@ -161,22 +189,34 @@ namespace {
 
     class Customer
     {
-        public int $id;
-        public int $id_lang = 1;
-        public string $email = '';
-        public string $firstname = '';
-        public string $lastname = '';
+        /** @var int */
+        public $id;
+        /** @var int */
+        public $id_lang = 1;
+        /** @var string */
+        public $email = '';
+        /** @var string */
+        public $firstname = '';
+        /** @var string */
+        public $lastname = '';
     }
 
     class Address
     {
-        public int $id;
-        public int $id_customer = 0;
-        public string $address1 = '';
-        public string $address2 = '';
-        public string $city = '';
-        public string $postcode = '';
-        public string $phone = '';
+        /** @var int */
+        public $id;
+        /** @var int */
+        public $id_customer = 0;
+        /** @var string */
+        public $address1 = '';
+        /** @var string */
+        public $address2 = '';
+        /** @var string */
+        public $city = '';
+        /** @var string */
+        public $postcode = '';
+        /** @var string */
+        public $phone = '';
 
         /**
          * @return array<int, array<string, mixed>>
@@ -189,9 +229,12 @@ namespace {
 
     class Currency
     {
-        public int $id;
-        public string $iso_code = 'EUR';
-        public int $decimals = 2;
+        /** @var int */
+        public $id;
+        /** @var string */
+        public $iso_code = 'EUR';
+        /** @var int */
+        public $decimals = 2;
 
         public function __construct(int $id = 0)
         {
@@ -201,14 +244,18 @@ namespace {
 
     class Language
     {
-        public int $id;
-        public string $iso_code = 'en';
+        /** @var int */
+        public $id;
+        /** @var string */
+        public $iso_code = 'en';
     }
 
     class Shop
     {
-        public int $id;
-        public string $name = '';
+        /** @var int */
+        public $id;
+        /** @var string */
+        public $name = '';
 
         public const CONTEXT_ALL = 1;
 
@@ -222,7 +269,8 @@ namespace {
 
     class Controller
     {
-        public string $php_self = '';
+        /** @var string */
+        public $php_self = '';
 
         public function addCSS(string $path): void {}
 
@@ -235,11 +283,15 @@ namespace {
 
     class Db
     {
-        private static ?Db $instance = null;
+        /** @var Db|null */
+        private static $instance = null;
 
         public static function getInstance(): self
         {
-            return self::$instance ??= new self();
+            if (self::$instance === null) {
+                self::$instance = new self();
+            }
+            return self::$instance;
         }
 
         public function execute(string $sql): bool
@@ -296,14 +348,22 @@ namespace {
     }
     class OrderState
     {
-        public int $id;
-        public array $name = [];
-        public bool $send_mail = false;
-        public string $template = '';
-        public bool $invoice = false;
-        public string $color = '';
-        public bool $unremovable = false;
-        public bool $logable = false;
+        /** @var int */
+        public $id;
+        /** @var array */
+        public $name = [];
+        /** @var bool */
+        public $send_mail = false;
+        /** @var string */
+        public $template = '';
+        /** @var bool */
+        public $invoice = false;
+        /** @var string */
+        public $color = '';
+        /** @var bool */
+        public $unremovable = false;
+        /** @var bool */
+        public $logable = false;
 
         public function add(): bool
         {

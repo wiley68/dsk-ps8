@@ -2,6 +2,11 @@ services:
   _defaults:
     public: true
 
+  # DskPayment controller
+  prestashop.module.dskpayment.controller.dskpayment_configuration:
+    class: 'PrestaShop\Module\DskPayment\Controller\DskPaymentConfigurationController'
+    public: true
+
   # DskPayment configuration form
   prestashop.module.dskpayment.form.type.dskpayment_configuration:
     class: 'PrestaShop\Module\DskPayment\Form\DskPaymentConfigurationType'
