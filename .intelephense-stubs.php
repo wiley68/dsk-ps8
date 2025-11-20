@@ -47,7 +47,9 @@ namespace {
         /** @var string */
         public $warning = '';
 
-        public function __construct() {}
+        public function __construct()
+        {
+        }
 
         public function install(): bool
         {
@@ -110,7 +112,8 @@ namespace {
             bool $dontTouchAmount = false,
             bool $secureKey = false,
             ?Shop $shop = null
-        ): void {}
+        ): void {
+        }
 
         /**
          * @return PrestaShop\PrestaShop\Core\Payment\PaymentOption[]
@@ -157,7 +160,9 @@ namespace {
          * @param mixed $value
          * @return void
          */
-        public function assign($tpl_var, $value = null): void {}
+        public function assign($tpl_var, $value = null): void
+        {
+        }
     }
 
     class Cart
@@ -227,6 +232,59 @@ namespace {
         }
     }
 
+    class Product
+    {
+        /** @var int */
+        public $id;
+
+        public function __construct(int $id = 0)
+        {
+            $this->id = $id;
+        }
+
+        /**
+         * @param int $idProduct
+         * @param bool $usetax
+         * @param int|null $idProductAttribute
+         * @param int|null $decimals
+         * @param int|null $divisor
+         * @param bool $onlyReduc
+         * @param bool $useReduc
+         * @param int|null $quantity
+         * @param bool $forceAssociatedTax
+         * @param int|null $idCustomer
+         * @param int|null $idCart
+         * @param int|null $idAddress
+         * @param array|null $specificPriceOutput
+         * @param bool $withEcotax
+         * @param bool $useGroupReduction
+         * @param Context|null $context
+         * @param bool $useCustomerPrice
+         * @return float
+         */
+        public static function getPriceStatic(
+            int $idProduct,
+            bool $usetax = true,
+            ?int $idProductAttribute = null,
+            ?int $decimals = null,
+            ?int $divisor = null,
+            bool $onlyReduc = false,
+            bool $useReduc = true,
+            ?int $quantity = null,
+            bool $forceAssociatedTax = false,
+            ?int $idCustomer = null,
+            ?int $idCart = null,
+            ?int $idAddress = null,
+            ?array $specificPriceOutput = null,
+            bool $withEcotax = true,
+            bool $useGroupReduction = true,
+            ?Context $context = null,
+            bool $useCustomerPrice = true
+        ): float {
+            return 0.0;
+        }
+    }
+
     class Currency
     {
         /** @var int */
@@ -264,7 +322,9 @@ namespace {
             return false;
         }
 
-        public static function setContext(int $context): void {}
+        public static function setContext(int $context): void
+        {
+        }
     }
 
     class Controller
@@ -272,13 +332,21 @@ namespace {
         /** @var string */
         public $php_self = '';
 
-        public function addCSS(string $path): void {}
+        public function addCSS(string $path): void
+        {
+        }
 
-        public function addJS(string $path): void {}
+        public function addJS(string $path): void
+        {
+        }
 
-        public function registerJavascript(string $id, string $path, array $options = []): void {}
+        public function registerJavascript(string $id, string $path, array $options = []): void
+        {
+        }
 
-        public function registerStylesheet(string $id, string $path, array $options = []): void {}
+        public function registerStylesheet(string $id, string $path, array $options = []): void
+        {
+        }
     }
 
     class Db
@@ -317,9 +385,13 @@ namespace {
             return false;
         }
 
-        public static function redirect(string $url): void {}
+        public static function redirect(string $url): void
+        {
+        }
 
-        public static function redirectAdmin(string $url): void {}
+        public static function redirectAdmin(string $url): void
+        {
+        }
     }
 
     if (!function_exists('pSQL')) {
@@ -419,13 +491,17 @@ namespace PrestaShopBundle\Controller\Admin {
          * @param string $message
          * @return void
          */
-        public function addFlash(string $type, string $message): void {}
+        public function addFlash(string $type, string $message): void
+        {
+        }
 
         /**
          * @param array<string> $errors
          * @return void
          */
-        public function flashErrors(array $errors): void {}
+        public function flashErrors(array $errors): void
+        {
+        }
 
         /**
          * @param string $route
@@ -452,12 +528,16 @@ namespace PrestaShopBundle\Controller\Admin {
 namespace Symfony\Component\HttpFoundation {
     class Request
     {
-        public function __construct() {}
+        public function __construct()
+        {
+        }
     }
 
     class Response
     {
-        public function __construct() {}
+        public function __construct()
+        {
+        }
     }
 }
 
@@ -531,16 +611,26 @@ namespace Symfony\Component\Form {
          * @param array<string, mixed> $options
          * @return void
          */
-        public function buildForm(FormBuilderInterface $builder, array $options): void {}
+        public function buildForm(FormBuilderInterface $builder, array $options): void
+        {
+        }
     }
 }
 
 namespace Symfony\Component\Form\Extension\Core\Type {
-    class TextType extends \Symfony\Component\Form\AbstractType {}
-    class NumberType extends \Symfony\Component\Form\AbstractType {}
+    class TextType extends \Symfony\Component\Form\AbstractType
+    {
+    }
+    class NumberType extends \Symfony\Component\Form\AbstractType
+    {
+    }
 }
 
 namespace PrestaShopBundle\Form\Admin\Type {
-    class TranslatorAwareType extends \Symfony\Component\Form\AbstractType {}
-    class SwitchType extends \Symfony\Component\Form\AbstractType {}
+    class TranslatorAwareType extends \Symfony\Component\Form\AbstractType
+    {
+    }
+    class SwitchType extends \Symfony\Component\Form\AbstractType
+    {
+    }
 }
