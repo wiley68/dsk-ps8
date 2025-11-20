@@ -100,13 +100,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     btn_dskapi.addEventListener('click', (event) => {
       if (dskapi_button_status == 1) {
-        if (dskapi_buy_buttons_submit.length) {
-          document
-            .querySelectorAll('button[data-button-action="add-to-cart"]')
-            .forEach(function (button) {
-              button.click();
-            });
-        }
+        console.log('Директно към поръчката с извикан платежен метод');
       } else {
         //get price with options
         let el_dskapi_price1 = document.querySelector(
@@ -179,6 +173,11 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     dskapi_buy_credit.addEventListener('click', (event) => {
+      dskapiProductPopupContainer.style.display = 'none';
+      console.log('Правим поръчка и прехвърляме към Банката');
+    });
+
+    dskapi_add_to_cart.addEventListener('click', (event) => {
       dskapiProductPopupContainer.style.display = 'none';
       if (dskapi_buy_buttons_submit.length) {
         document

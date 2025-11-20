@@ -100,43 +100,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     btn_dskapi.addEventListener('click', (event) => {
       if (dskapi_button_status == 1) {
-        if (dskapi_buy_buttons_submit.length) {
-          document
-            .querySelectorAll('button[data-button-action="add-to-cart"]')
-            .forEach(function (button) {
-              button.click();
-            });
-        }
+        console.log('Директно към поръчката с извикан платежен метод');
       } else {
-        //get price with options
-        let el_dskapi_price1 = document.querySelector(
-          'span.current-price-value'
-        );
-        if (el_dskapi_price1 !== null) {
-          dskapi_price1 = el_dskapi_price1.getAttribute('content');
-        } else {
-          el_dskapi_price1 = document.querySelector('[itemprop=price]');
-          if (el_dskapi_price1 !== null) {
-            el_dskapi_price1 = el_dskapi_price1.innerHTML.replace(
-              /[^\d,-]/g,
-              ''
-            );
-            if (el_dskapi_price1 !== null) {
-              if (el_dskapi_price1.indexOf('.') !== -1) {
-                dskapi_price1 = el_dskapi_price1.replace(/[^\d.-]/g, '');
-              } else {
-                dskapi_price1 = el_dskapi_price1.replace(/,/g, '.');
-              }
-            }
-          }
-        }
-        if (document.getElementsByName('qty') !== null) {
-          dskapi_quantity = parseFloat(
-            document.getElementsByName('qty')[0].value
-          );
-        }
-        dskapi_priceall = parseFloat(dskapi_price1) * dskapi_quantity;
-
         const dskapi_eur = parseInt(
           document.getElementById('dskapi_eur').value
         );
@@ -180,13 +145,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     dskapi_buy_credit.addEventListener('click', (event) => {
       dskapiProductPopupContainer.style.display = 'none';
-      if (dskapi_buy_buttons_submit.length) {
-        document
-          .querySelectorAll('button[data-button-action="add-to-cart"]')
-          .forEach(function (button) {
-            button.click();
-          });
-      }
+      console.log('Правим поръчка и прехвърляме към Банката');
     });
   }
 });

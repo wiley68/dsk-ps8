@@ -192,7 +192,7 @@
                         <div
                             class="dskapi_btn"
                             id="dskapi_buy_credit"
-                        >Добави в количката</div>
+                        >Купи на изплащане</div>
                         <div
                             class="dskapi_btn_cancel"
                             id="dskapi_back_credit"

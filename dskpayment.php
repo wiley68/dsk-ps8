@@ -145,7 +145,7 @@ class DskPayment extends PaymentModule
     {
         if ('product' === $this->context->controller->php_self) {
             $productJsPath = _PS_MODULE_DIR_ . $this->name . '/js/dskpayment_product.js';
-            $productCssPath = _PS_MODULE_DIR_ . $this->name . '/css/dskpayment.css';
+            $productCssPath = _PS_MODULE_DIR_ . $this->name . '/css/dskpayment_product.css';
 
             if (file_exists($productJsPath)) {
                 $this->context->controller->registerJavascript(
@@ -161,7 +161,7 @@ class DskPayment extends PaymentModule
             if (file_exists($productCssPath)) {
                 $this->context->controller->registerStylesheet(
                     'module-dskpayment-product-css',
-                    'modules/' . $this->name . '/css/dskpayment.css',
+                    'modules/' . $this->name . '/css/dskpayment_product.css',
                     [
                         'media' => 'all',
                         'priority' => 200,
@@ -172,12 +172,12 @@ class DskPayment extends PaymentModule
         }
         if ('cart' === $this->context->controller->php_self) {
             $cartJsPath = _PS_MODULE_DIR_ . $this->name . '/js/dskpayment_cart.js';
-            $cartCssPath = _PS_MODULE_DIR_ . $this->name . '/css/dskpayment.css';
+            $cartCssPath = _PS_MODULE_DIR_ . $this->name . '/css/dskpayment_cart.css';
 
             if (file_exists($cartCssPath)) {
                 $this->context->controller->registerStylesheet(
                     'module-dskpayment-cart-css',
-                    'modules/' . $this->name . '/css/dskpayment.css',
+                    'modules/' . $this->name . '/css/dskpayment_cart.css',
                     [
                         'media' => 'all',
                         'priority' => 200,
