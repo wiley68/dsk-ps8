@@ -237,26 +237,13 @@ class DskPayment extends PaymentModule
         }
         if ('order' === $this->context->controller->php_self) {
             $checkoutJsPath = _PS_MODULE_DIR_ . $this->name . '/js/dskpayment_checkout.js';
-            $checkoutCssPath = _PS_MODULE_DIR_ . $this->name . '/css/dskpayment_checkout.css';
 
-            if (file_exists($checkoutCssPath)) {
-                $this->context->controller->registerStylesheet(
-                    'module-dskpayment-checkout-css',
-                    'modules/' . $this->name . '/css/dskpayment_checkout.css',
-                    [
-                        'media' => 'all',
-                        'priority' => 200,
-                        'version' => filemtime($checkoutCssPath)
-                    ]
-                );
-            }
             if (file_exists($checkoutJsPath)) {
                 $this->context->controller->registerJavascript(
                     'module-dskpayment-checkout-js',
                     'modules/' . $this->name . '/js/dskpayment_checkout.js',
                     [
-                        'priority' => 200,
-                        'attribute' => 'async',
+                        'priority' => 100,
                         'version' => filemtime($checkoutJsPath)
                     ]
                 );
@@ -571,30 +558,32 @@ class DskPayment extends PaymentModule
         $dskapi_address2 = $invoiceAddress ? trim((string) $invoiceAddress->address1) : $dskapi_address1;
         $dskapi_address2city = $invoiceAddress ? trim((string) $invoiceAddress->city) : $dskapi_address1city;
 
+        // Генерираме CSRF token базиран на cart ID и customer secure_key
+        $customer = new Customer($cart->id_customer);
+        $token = md5($cart->id . '_' . ($customer->secure_key ?? '') . '_' . Configuration::get('PS_COOKIE_CHECKSUM'));
+
+        // Предаваме данните към темплейта за POST форма
+        $this->context->smarty->assign([
+            'dskapi_firstname' => $dskapi_firstname,
+            'dskapi_lastname' => $dskapi_lastname,
+            'dskapi_phone' => $dskapi_phone,
+            'dskapi_email' => $dskapi_email,
+            'dskapi_address2' => $dskapi_address2,
+            'dskapi_address2city' => $dskapi_address2city,
+            'dskapi_address1' => $dskapi_address1,
+            'dskapi_address1city' => $dskapi_address1city,
+            'dskapi_postcode' => $dskapi_postcode,
+            'dskapi_eur' => $dskapi_eur,
+            'dskapi_validation_url' => $this->context->link->getModuleLink($this->name, 'validation', [], true),
+            'dskapi_token' => $token,
+            'dskapi_cart_id' => $cart->id
+        ]);
+
         $payment_options = [];
         $newOption_DSK = new PaymentOption();
         $newOption_DSK->setModuleName($this->name);
         $newOption_DSK->setCallToActionText('Банка ДСК');
         $newOption_DSK->setLogo(_MODULE_DIR_ . $this->name . '/logo.png');
-        $newOption_DSK->setAction(
-            $this->context->link->getModuleLink(
-                $this->name,
-                'validation',
-                [
-                    "dskapi_firstname" => $dskapi_firstname,
-                    "dskapi_lastname" => $dskapi_lastname,
-                    "dskapi_phone" => $dskapi_phone,
-                    "dskapi_email" => $dskapi_email,
-                    "dskapi_address2" => $dskapi_address2,
-                    "dskapi_address2city" => $dskapi_address2city,
-                    "dskapi_address1" => $dskapi_address1,
-                    "dskapi_address1city" => $dskapi_address1city,
-                    "dskapi_postcode" => $dskapi_postcode,
-                    "dskapi_eur" => $dskapi_eur
-                ],
-                true
-            )
-        );
         $newOption_DSK->setAdditionalInformation($this->fetch('module:dskpayment/views/templates/hook/dskpayment_checkout.tpl'));
         $payment_options[] = $newOption_DSK;
 

@@ -48,11 +48,12 @@ class DskPaymentOrder extends ObjectModel
     ];
 
     /**
-     * Create a new DSK payment order record
+     * Create or update a DSK payment order record
+     * If order with this order_id exists, it will be updated, otherwise created
      *
      * @param int $orderId PrestaShop order ID
      * @param int $orderStatus Order status (0-8)
-     * @return DskPaymentOrder|false Created object or false on failure
+     * @return DskPaymentOrder|false Created/updated object or false on failure
      */
     public static function create(int $orderId, int $orderStatus = 0)
     {
@@ -60,6 +61,22 @@ class DskPaymentOrder extends ObjectModel
             return false;
         }
 
+        // Check if order already exists
+        $existingOrder = self::getByOrderId($orderId);
+
+        if ($existingOrder && Validate::isLoadedObject($existingOrder)) {
+            // Update existing order
+            $existingOrder->order_status = (int) $orderStatus;
+            $existingOrder->updated_at = date('Y-m-d H:i:s');
+
+            if ($existingOrder->update()) {
+                return $existingOrder;
+            }
+
+            return false;
+        }
+
+        // Create new order
         $dskOrder = new self();
         $dskOrder->order_id = (int) $orderId;
         $dskOrder->order_status = (int) $orderStatus;
