@@ -28,6 +28,19 @@ namespace {
         {
             return $object !== null;
         }
+
+        public static function isUnsignedInt($value): bool
+        {
+            return is_int($value) && $value >= 0;
+        }
+    }
+
+    class Image
+    {
+        public static function getCover(int $idProduct): array
+        {
+            return ['id_image' => 0];
+        }
     }
 
     class Module
@@ -93,9 +106,19 @@ namespace {
             ];
         }
 
-        public function l(string $string): string
+        public function l(string $string, string $class = ''): string
         {
             return $string;
+        }
+
+        public function getPaymentModules(): array
+        {
+            return [];
+        }
+
+        public static function getInstanceByName(string $name): ?self
+        {
+            return new self();
         }
 
         public function fetch(string $template): string
@@ -108,17 +131,19 @@ namespace {
     {
         /** @var Context */
         public $context;
+        /** @var int|null */
+        public $currentOrder = null;
 
         public function validateOrder(
             int $cartId,
             int $orderState,
             float $amount,
             string $paymentMethod = '',
-            string $message = '',
+            ?string $message = null,
             array $extraVars = [],
             ?Currency $currency = null,
             bool $dontTouchAmount = false,
-            bool $secureKey = false,
+            $secureKey = '',
             ?Shop $shop = null
         ): void {
         }
@@ -222,6 +247,13 @@ namespace {
         public $firstname = '';
         /** @var string */
         public $lastname = '';
+        /** @var string */
+        public $secure_key = '';
+
+        public function __construct(int $id = 0)
+        {
+            $this->id = $id;
+        }
     }
 
     class Address
@@ -367,11 +399,56 @@ namespace {
         }
     }
 
+    class ModuleFrontController extends Controller
+    {
+        /** @var Context */
+        public $context;
+        /** @var PaymentModule|null */
+        public $module;
+
+        public function __construct()
+        {
+            $this->context = Context::getContext();
+            $this->module = new PaymentModule();
+        }
+    }
+
     class Link
     {
         public function getModuleLink(string $module, string $controller, array $params = [], bool $ssl = false): string
         {
             return '/module/' . $module . '/' . $controller;
+        }
+
+        public function getPageLink(string $page, bool $ssl = false, int $idLang = 0, array $params = []): string
+        {
+            return '/' . $page;
+        }
+
+        public function getImageLink(string $rewrite, int $idImage, string $type): string
+        {
+            return 'https://example.com/img/' . $idImage . '-' . $type . '.jpg';
+        }
+    }
+
+    class Mail
+    {
+        public static function Send(
+            $idLang,
+            $template,
+            $subject,
+            $templateVars,
+            $to,
+            $toName = '',
+            $from = null,
+            $fromName = null,
+            $fileAttachment = [],
+            $modeSMTP = null,
+            $die = false,
+            $idShop = null,
+            $bcc = null
+        ): bool {
+            return true;
         }
     }
 
@@ -444,6 +521,17 @@ namespace {
             return true;
         }
     }
+    class Order
+    {
+        /** @var int */
+        public $id;
+
+        public function __construct(int $id = 0)
+        {
+            $this->id = $id;
+        }
+    }
+
     class OrderState
     {
         /** @var int */
