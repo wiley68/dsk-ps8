@@ -190,6 +190,14 @@ namespace {
         {
             return false;
         }
+
+        /**
+         * @return array<int, array<string, mixed>>
+         */
+        public function getProducts(bool $refresh = false): array
+        {
+            return [];
+        }
     }
 
     class Customer
