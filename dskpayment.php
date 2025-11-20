@@ -145,7 +145,7 @@ class DskPayment extends PaymentModule
     {
         if ('product' === $this->context->controller->php_self) {
             $productJsPath = _PS_MODULE_DIR_ . $this->name . '/js/dskpayment_product.js';
-            $productCssPath = _PS_MODULE_DIR_ . $this->name . '/css/dskpayment_product.css';
+            $productCssPath = _PS_MODULE_DIR_ . $this->name . '/css/dskpayment.css';
 
             if (file_exists($productJsPath)) {
                 $this->context->controller->registerJavascript(
@@ -161,7 +161,7 @@ class DskPayment extends PaymentModule
             if (file_exists($productCssPath)) {
                 $this->context->controller->registerStylesheet(
                     'module-dskpayment-product-css',
-                    'modules/' . $this->name . '/css/dskpayment_product.css',
+                    'modules/' . $this->name . '/css/dskpayment.css',
                     [
                         'media' => 'all',
                         'priority' => 200,
@@ -172,12 +172,12 @@ class DskPayment extends PaymentModule
         }
         if ('cart' === $this->context->controller->php_self) {
             $cartJsPath = _PS_MODULE_DIR_ . $this->name . '/js/dskpayment_cart.js';
-            $cartCssPath = _PS_MODULE_DIR_ . $this->name . '/css/dskpayment_cart.css';
+            $cartCssPath = _PS_MODULE_DIR_ . $this->name . '/css/dskpayment.css';
 
             if (file_exists($cartCssPath)) {
                 $this->context->controller->registerStylesheet(
                     'module-dskpayment-cart-css',
-                    'modules/' . $this->name . '/css/dskpayment_cart.css',
+                    'modules/' . $this->name . '/css/dskpayment.css',
                     [
                         'media' => 'all',
                         'priority' => 200,
@@ -239,20 +239,6 @@ class DskPayment extends PaymentModule
             return '';
         }
 
-        $dskapi_status = (int) Configuration::get('DSKAPI_STATUS');
-        $dskapi_currency_code = $this->context->currency->iso_code ?? '';
-        $dskapi_gap = (int) Configuration::get('DSKAPI_GAP');
-
-        // Проверка за статус и валута
-        if ($dskapi_status === 0 || !in_array($dskapi_currency_code, ['EUR', 'BGN'], true)) {
-            return '';
-        }
-
-        $dskapi_cid = (string) Configuration::get('DSKAPI_CID');
-        if (empty($dskapi_cid)) {
-            return '';
-        }
-
         $dskapi_product_id = (int) Tools::getValue('id_product');
         if ($dskapi_product_id <= 0) {
             return '';
@@ -263,149 +249,16 @@ class DskPayment extends PaymentModule
             return '';
         }
 
-        // Получаване на настройки за валута
-        $dskapi_eur = 0;
-        $dskapi_sign = "лв.";
-        $response = $this->makeApiRequest('/function/geteur.php?cid=' . urlencode($dskapi_cid));
-        if ($response === null) {
-            return '';
-        }
-
-        $dskapi_eur = (int) ($response['dsk_eur'] ?? 0);
-        switch ($dskapi_eur) {
-            case 1:
-                $dskapi_sign = "лв.";
-                if ($dskapi_currency_code === "EUR") {
-                    $dskapi_price = (float) number_format($dskapi_price * 1.95583, 2, ".", "");
-                }
-                break;
-            case 2:
-                $dskapi_sign = "евро";
-                if ($dskapi_currency_code === "BGN") {
-                    $dskapi_price = (float) number_format($dskapi_price / 1.95583, 2, ".", "");
-                }
-                break;
-        }
-
-        // Получаване на данни за продукта
-        $apiUrl = '/function/getproduct.php?cid=' . urlencode($dskapi_cid)
-            . '&price=' . urlencode((string) $dskapi_price)
-            . '&product_id=' . urlencode((string) $dskapi_product_id);
-        $paramsdskapi = $this->makeApiRequest($apiUrl);
-        if ($paramsdskapi === null) {
-            return '';
-        }
-
-        // Валидация на задължителни полета
-        if (
-            !isset(
-            $paramsdskapi['dsk_options'],
-            $paramsdskapi['dsk_is_visible'],
-            $paramsdskapi['dsk_status'],
-            $paramsdskapi['dsk_button_status'],
-            $paramsdskapi['dsk_reklama']
-        )
-        ) {
-            return '';
-        }
-
-        $dskapi_zaglavie = $paramsdskapi['dsk_zaglavie'] ?? '';
-        $dskapi_custom_button_status = (int) ($paramsdskapi['dsk_custom_button_status'] ?? 0);
-        $dskapi_options = (bool) $paramsdskapi['dsk_options'];
-        $dskapi_is_visible = (bool) $paramsdskapi['dsk_is_visible'];
-        $dskapi_button_normal = DSKAPI_LIVEURL . '/calculators/assets/img/buttons/dsk.png';
-        $dskapi_button_normal_custom = DSKAPI_LIVEURL . '/calculators/assets/img/custom_buttons/' . urlencode($dskapi_cid) . '.png';
-        $dskapi_button_hover = DSKAPI_LIVEURL . '/calculators/assets/img/buttons/dsk-hover.png';
-        $dskapi_button_hover_custom = DSKAPI_LIVEURL . '/calculators/assets/img/custom_buttons/' . urlencode($dskapi_cid) . '_hover.png';
-        $dskapi_isvnoska = (int) ($paramsdskapi['dsk_isvnoska'] ?? 0);
-        $dskapi_vnoski = (int) ($paramsdskapi['dsk_vnoski_default'] ?? 0);
-        $dskapi_vnoska = (float) ($paramsdskapi['dsk_vnoska'] ?? 0);
-        $dskapi_button_status = (int) $paramsdskapi['dsk_button_status'];
-        $dskapi_minstojnost = (float) number_format((float) ($paramsdskapi['dsk_minstojnost'] ?? 0), 2, ".", "");
-        $dskapi_maxstojnost = (float) number_format((float) ($paramsdskapi['dsk_maxstojnost'] ?? 0), 2, ".", "");
-        $dskapi_vnoski_visible = (int) ($paramsdskapi['dsk_vnoski_visible'] ?? 0);
-        $dskapi_reklama = (int) ($paramsdskapi['dsk_reklama'] ?? 0);
-
-        // Генериране на масив с видими вноски (оптимизирано)
-        $dskapi_vnoski_visible_arr = [];
-        for ($vnoska = 3; $vnoska <= 48; $vnoska++) {
-            $bitPosition = $vnoska - 3;
-            $bitMask = 1 << $bitPosition;
-            $dskapi_vnoski_visible_arr[$vnoska] = ($dskapi_vnoski_visible & $bitMask) !== 0 || $dskapi_vnoski === $vnoska;
-        }
-
-        // Определяне на мобилно устройство
-        $dskapi_is_mobile = $this->isMobileDevice();
-        $prefix = $dskapi_is_mobile ? 'dskapim' : 'dskapi';
-        $imgPrefix = $dskapi_is_mobile ? 'dskm' : 'dsk';
-
-        $dskapi_PopUp_Detailed_v1 = $prefix . "_PopUp_Detailed_v1";
-        $dskapi_Mask = $prefix . "_Mask";
-        $dskapi_picture = DSKAPI_LIVEURL . '/calculators/assets/img/' . $imgPrefix . $dskapi_reklama . '.png';
-        $dskapi_product_name = $prefix . "_product_name";
-        $dskapi_body_panel_txt3 = $prefix . "_body_panel_txt3";
-        $dskapi_body_panel_txt4 = $prefix . "_body_panel_txt4";
-        $dskapi_body_panel_txt3_left = $prefix . "_body_panel_txt3_left";
-        $dskapi_body_panel_txt3_right = $prefix . "_body_panel_txt3_right";
-        $dskapi_sumi_panel = $prefix . "_sumi_panel";
-        $dskapi_kredit_panel = $prefix . "_kredit_panel";
-        $dskapi_body_panel_footer = $prefix . "_body_panel_footer";
-        $dskapi_body_panel_left = $prefix . "_body_panel_left";
-
-        // Финален филтър преди показване
-        if (
-            $dskapi_price <= 0 ||
-            !$dskapi_options ||
-            !$dskapi_is_visible ||
-            (int) $paramsdskapi['dsk_status'] !== 1 ||
-            $dskapi_button_status === 0
-        ) {
-            return '';
-        }
-
-        $this->context->smarty->assign([
-            'dskapi_zaglavie' => $dskapi_zaglavie,
-            'dskapi_custom_button_status' => $dskapi_custom_button_status,
-            'dskapi_button_normal_custom' => $dskapi_button_normal_custom,
-            'dskapi_button_hover_custom' => $dskapi_button_hover_custom,
-            'dskapi_button_normal' => $dskapi_button_normal,
-            'dskapi_button_hover' => $dskapi_button_hover,
-            'dskapi_isvnoska' => $dskapi_isvnoska,
-            'dskapi_vnoski' => $dskapi_vnoski,
-            'dskapi_vnoska' => number_format($dskapi_vnoska, 2, ".", ""),
-            'dskapi_price' => number_format($dskapi_price, 2, ".", ""),
-            'dskapi_cid' => $dskapi_cid,
-            'dskapi_product_id' => $dskapi_product_id,
-            'DSKAPI_LIVEURL' => DSKAPI_LIVEURL,
-            'dskapi_button_status' => $dskapi_button_status,
-            'dskapi_maxstojnost' => $dskapi_maxstojnost,
-            'dskapi_PopUp_Detailed_v1' => $dskapi_PopUp_Detailed_v1,
-            'dskapi_Mask' => $dskapi_Mask,
-            'dskapi_picture' => $dskapi_picture,
-            'dskapi_product_name' => $dskapi_product_name,
-            'dskapi_body_panel_txt3' => $dskapi_body_panel_txt3,
-            'dskapi_body_panel_txt4' => $dskapi_body_panel_txt4,
-            'dskapi_body_panel_txt3_left' => $dskapi_body_panel_txt3_left,
-            'dskapi_minstojnost' => $dskapi_minstojnost,
-            'dskapi_body_panel_txt3_right' => $dskapi_body_panel_txt3_right,
-            'dskapi_vnoski_visible_arr' => $dskapi_vnoski_visible_arr,
-            'dskapi_sumi_panel' => $dskapi_sumi_panel,
-            'dskapi_kredit_panel' => $dskapi_kredit_panel,
-            'dskapi_body_panel_footer' => $dskapi_body_panel_footer,
-            'dskapi_body_panel_left' => $dskapi_body_panel_left,
-            'DSKAPI_VERSION' => $this->version,
-            'dskapi_sign' => $dskapi_sign,
-            'dskapi_currency_code' => $dskapi_currency_code,
-            'dskapi_eur' => $dskapi_eur,
-            'dskapi_gap' => $dskapi_gap
-        ]);
-
-        return $this->fetch('module:dskpayment/views/templates/hook/dskpayment_product.tpl');
+        return $this->renderDskWidget(
+            $dskapi_price,
+            $dskapi_product_id,
+            'module:dskpayment/views/templates/hook/dskpayment_product.tpl'
+        );
 
     }
 
     /**
-     * Placeholder for shopping cart hook (reserved for future enhancements).
+     * Renders the DSK widget on the shopping cart page.
      *
      * @param array $params
      *
@@ -417,11 +270,35 @@ class DskPayment extends PaymentModule
             return '';
         }
 
+        $dskapi_price = (float) $this->context->cart->getOrderTotal(true);
+        if ($dskapi_price <= 0 || !$this->hasAvailableProductInCart()) {
+            return '';
+        }
+
+        $dskapi_product_id = $this->resolveCartProductId();
+
+        return $this->renderDskWidget(
+            $dskapi_price,
+            $dskapi_product_id,
+            'module:dskpayment/views/templates/hook/dskpayment_cart.tpl'
+        );
+    }
+
+    /**
+     * Builds the data needed for rendering the financing widget and returns the rendered template.
+     *
+     * @param float $price
+     * @param int $productId
+     * @param string $templatePath
+     *
+     * @return string
+     */
+    private function renderDskWidget(float $price, int $productId, string $templatePath): string
+    {
         $dskapi_status = (int) Configuration::get('DSKAPI_STATUS');
         $dskapi_currency_code = $this->context->currency->iso_code ?? '';
         $dskapi_gap = (int) Configuration::get('DSKAPI_GAP');
 
-        // Проверка за статус и валута
         if ($dskapi_status === 0 || !in_array($dskapi_currency_code, ['EUR', 'BGN'], true)) {
             return '';
         }
@@ -431,16 +308,8 @@ class DskPayment extends PaymentModule
             return '';
         }
 
-        $dskapi_price = (float) $this->context->cart->getOrderTotal(true);
-        $dskapi_product_id = $this->resolveCartProductId();
-        // Проверка за валидна сума и наличност на продуктите в количката
-        if ($dskapi_price <= 0 || !$this->hasAvailableProductInCart()) {
-            return '';
-        }
-
-        // Получаване на настройки за валута
-        $dskapi_eur = 0;
-        $dskapi_sign = "лв.";
+        $dskapi_price = $price;
+        $dskapi_sign = 'лв.';
         $response = $this->makeApiRequest('/function/geteur.php?cid=' . urlencode($dskapi_cid));
         if ($response === null) {
             return '';
@@ -449,29 +318,27 @@ class DskPayment extends PaymentModule
         $dskapi_eur = (int) ($response['dsk_eur'] ?? 0);
         switch ($dskapi_eur) {
             case 1:
-                $dskapi_sign = "лв.";
-                if ($dskapi_currency_code === "EUR") {
-                    $dskapi_price = (float) number_format($dskapi_price * 1.95583, 2, ".", "");
+                $dskapi_sign = 'лв.';
+                if ($dskapi_currency_code === 'EUR') {
+                    $dskapi_price = (float) number_format($dskapi_price * 1.95583, 2, '.', '');
                 }
                 break;
             case 2:
-                $dskapi_sign = "евро";
-                if ($dskapi_currency_code === "BGN") {
-                    $dskapi_price = (float) number_format($dskapi_price / 1.95583, 2, ".", "");
+                $dskapi_sign = 'евро';
+                if ($dskapi_currency_code === 'BGN') {
+                    $dskapi_price = (float) number_format($dskapi_price / 1.95583, 2, '.', '');
                 }
                 break;
         }
 
-        // Получаване на данни за продукта
         $apiUrl = '/function/getproduct.php?cid=' . urlencode($dskapi_cid)
             . '&price=' . urlencode((string) $dskapi_price)
-            . '&product_id=' . urlencode((string) $dskapi_product_id);
+            . '&product_id=' . urlencode((string) $productId);
         $paramsdskapi = $this->makeApiRequest($apiUrl);
         if ($paramsdskapi === null) {
             return '';
         }
 
-        // Валидация на задължителни полета
         if (
             !isset(
             $paramsdskapi['dsk_options'],
@@ -484,50 +351,10 @@ class DskPayment extends PaymentModule
             return '';
         }
 
-        $dskapi_zaglavie = $paramsdskapi['dsk_zaglavie'] ?? '';
-        $dskapi_custom_button_status = (int) ($paramsdskapi['dsk_custom_button_status'] ?? 0);
         $dskapi_options = (bool) $paramsdskapi['dsk_options'];
         $dskapi_is_visible = (bool) $paramsdskapi['dsk_is_visible'];
-        $dskapi_button_normal = DSKAPI_LIVEURL . '/calculators/assets/img/buttons/dsk.png';
-        $dskapi_button_normal_custom = DSKAPI_LIVEURL . '/calculators/assets/img/custom_buttons/' . urlencode($dskapi_cid) . '.png';
-        $dskapi_button_hover = DSKAPI_LIVEURL . '/calculators/assets/img/buttons/dsk-hover.png';
-        $dskapi_button_hover_custom = DSKAPI_LIVEURL . '/calculators/assets/img/custom_buttons/' . urlencode($dskapi_cid) . '_hover.png';
-        $dskapi_isvnoska = (int) ($paramsdskapi['dsk_isvnoska'] ?? 0);
-        $dskapi_vnoski = (int) ($paramsdskapi['dsk_vnoski_default'] ?? 0);
-        $dskapi_vnoska = (float) ($paramsdskapi['dsk_vnoska'] ?? 0);
         $dskapi_button_status = (int) $paramsdskapi['dsk_button_status'];
-        $dskapi_minstojnost = (float) number_format((float) ($paramsdskapi['dsk_minstojnost'] ?? 0), 2, ".", "");
-        $dskapi_maxstojnost = (float) number_format((float) ($paramsdskapi['dsk_maxstojnost'] ?? 0), 2, ".", "");
-        $dskapi_vnoski_visible = (int) ($paramsdskapi['dsk_vnoski_visible'] ?? 0);
-        $dskapi_reklama = (int) ($paramsdskapi['dsk_reklama'] ?? 0);
 
-        // Генериране на масив с видими вноски (оптимизирано)
-        $dskapi_vnoski_visible_arr = [];
-        for ($vnoska = 3; $vnoska <= 48; $vnoska++) {
-            $bitPosition = $vnoska - 3;
-            $bitMask = 1 << $bitPosition;
-            $dskapi_vnoski_visible_arr[$vnoska] = ($dskapi_vnoski_visible & $bitMask) !== 0 || $dskapi_vnoski === $vnoska;
-        }
-
-        // Определяне на мобилно устройство
-        $dskapi_is_mobile = $this->isMobileDevice();
-        $prefix = $dskapi_is_mobile ? 'dskapim' : 'dskapi';
-        $imgPrefix = $dskapi_is_mobile ? 'dskm' : 'dsk';
-
-        $dskapi_PopUp_Detailed_v1 = $prefix . "_PopUp_Detailed_v1";
-        $dskapi_Mask = $prefix . "_Mask";
-        $dskapi_picture = DSKAPI_LIVEURL . '/calculators/assets/img/' . $imgPrefix . $dskapi_reklama . '.png';
-        $dskapi_product_name = $prefix . "_product_name";
-        $dskapi_body_panel_txt3 = $prefix . "_body_panel_txt3";
-        $dskapi_body_panel_txt4 = $prefix . "_body_panel_txt4";
-        $dskapi_body_panel_txt3_left = $prefix . "_body_panel_txt3_left";
-        $dskapi_body_panel_txt3_right = $prefix . "_body_panel_txt3_right";
-        $dskapi_sumi_panel = $prefix . "_sumi_panel";
-        $dskapi_kredit_panel = $prefix . "_kredit_panel";
-        $dskapi_body_panel_footer = $prefix . "_body_panel_footer";
-        $dskapi_body_panel_left = $prefix . "_body_panel_left";
-
-        // Финален филтър преди показване
         if (
             $dskapi_price <= 0 ||
             !$dskapi_options ||
@@ -538,36 +365,49 @@ class DskPayment extends PaymentModule
             return '';
         }
 
+        $dskapi_vnoski_visible = (int) ($paramsdskapi['dsk_vnoski_visible'] ?? 0);
+        $defaultVnoski = (int) ($paramsdskapi['dsk_vnoski_default'] ?? 0);
+        $dskapi_vnoski_visible_arr = [];
+        for ($vnoska = 3; $vnoska <= 48; $vnoska++) {
+            $bitPosition = $vnoska - 3;
+            $bitMask = 1 << $bitPosition;
+            $dskapi_vnoski_visible_arr[$vnoska] = ($dskapi_vnoski_visible & $bitMask) !== 0 || $defaultVnoski === $vnoska;
+        }
+
+        $dskapi_is_mobile = $this->isMobileDevice();
+        $prefix = $dskapi_is_mobile ? 'dskapim' : 'dskapi';
+        $imgPrefix = $dskapi_is_mobile ? 'dskm' : 'dsk';
+
         $this->context->smarty->assign([
-            'dskapi_zaglavie' => $dskapi_zaglavie,
-            'dskapi_custom_button_status' => $dskapi_custom_button_status,
-            'dskapi_button_normal_custom' => $dskapi_button_normal_custom,
-            'dskapi_button_hover_custom' => $dskapi_button_hover_custom,
-            'dskapi_button_normal' => $dskapi_button_normal,
-            'dskapi_button_hover' => $dskapi_button_hover,
-            'dskapi_isvnoska' => $dskapi_isvnoska,
-            'dskapi_vnoski' => $dskapi_vnoski,
-            'dskapi_vnoska' => number_format($dskapi_vnoska, 2, ".", ""),
-            'dskapi_price' => number_format($dskapi_price, 2, ".", ""),
+            'dskapi_zaglavie' => $paramsdskapi['dsk_zaglavie'] ?? '',
+            'dskapi_custom_button_status' => (int) ($paramsdskapi['dsk_custom_button_status'] ?? 0),
+            'dskapi_button_normal_custom' => DSKAPI_LIVEURL . '/calculators/assets/img/custom_buttons/' . urlencode($dskapi_cid) . '.png',
+            'dskapi_button_hover_custom' => DSKAPI_LIVEURL . '/calculators/assets/img/custom_buttons/' . urlencode($dskapi_cid) . '_hover.png',
+            'dskapi_button_normal' => DSKAPI_LIVEURL . '/calculators/assets/img/buttons/dsk.png',
+            'dskapi_button_hover' => DSKAPI_LIVEURL . '/calculators/assets/img/buttons/dsk-hover.png',
+            'dskapi_isvnoska' => (int) ($paramsdskapi['dsk_isvnoska'] ?? 0),
+            'dskapi_vnoski' => $defaultVnoski,
+            'dskapi_vnoska' => number_format((float) ($paramsdskapi['dsk_vnoska'] ?? 0), 2, '.', ''),
+            'dskapi_price' => number_format($dskapi_price, 2, '.', ''),
             'dskapi_cid' => $dskapi_cid,
-            'dskapi_product_id' => $dskapi_product_id,
+            'dskapi_product_id' => $productId,
             'DSKAPI_LIVEURL' => DSKAPI_LIVEURL,
             'dskapi_button_status' => $dskapi_button_status,
-            'dskapi_maxstojnost' => $dskapi_maxstojnost,
-            'dskapi_PopUp_Detailed_v1' => $dskapi_PopUp_Detailed_v1,
-            'dskapi_Mask' => $dskapi_Mask,
-            'dskapi_picture' => $dskapi_picture,
-            'dskapi_product_name' => $dskapi_product_name,
-            'dskapi_body_panel_txt3' => $dskapi_body_panel_txt3,
-            'dskapi_body_panel_txt4' => $dskapi_body_panel_txt4,
-            'dskapi_body_panel_txt3_left' => $dskapi_body_panel_txt3_left,
-            'dskapi_minstojnost' => $dskapi_minstojnost,
-            'dskapi_body_panel_txt3_right' => $dskapi_body_panel_txt3_right,
+            'dskapi_maxstojnost' => (float) number_format((float) ($paramsdskapi['dsk_maxstojnost'] ?? 0), 2, '.', ''),
+            'dskapi_minstojnost' => (float) number_format((float) ($paramsdskapi['dsk_minstojnost'] ?? 0), 2, '.', ''),
+            'dskapi_PopUp_Detailed_v1' => $prefix . '_PopUp_Detailed_v1',
+            'dskapi_Mask' => $prefix . '_Mask',
+            'dskapi_picture' => DSKAPI_LIVEURL . '/calculators/assets/img/' . $imgPrefix . ($paramsdskapi['dsk_reklama'] ?? 0) . '.png',
+            'dskapi_product_name' => $prefix . '_product_name',
+            'dskapi_body_panel_txt3' => $prefix . '_body_panel_txt3',
+            'dskapi_body_panel_txt4' => $prefix . '_body_panel_txt4',
+            'dskapi_body_panel_txt3_left' => $prefix . '_body_panel_txt3_left',
+            'dskapi_body_panel_txt3_right' => $prefix . '_body_panel_txt3_right',
+            'dskapi_sumi_panel' => $prefix . '_sumi_panel',
+            'dskapi_kredit_panel' => $prefix . '_kredit_panel',
+            'dskapi_body_panel_footer' => $prefix . '_body_panel_footer',
+            'dskapi_body_panel_left' => $prefix . '_body_panel_left',
             'dskapi_vnoski_visible_arr' => $dskapi_vnoski_visible_arr,
-            'dskapi_sumi_panel' => $dskapi_sumi_panel,
-            'dskapi_kredit_panel' => $dskapi_kredit_panel,
-            'dskapi_body_panel_footer' => $dskapi_body_panel_footer,
-            'dskapi_body_panel_left' => $dskapi_body_panel_left,
             'DSKAPI_VERSION' => $this->version,
             'dskapi_sign' => $dskapi_sign,
             'dskapi_currency_code' => $dskapi_currency_code,
@@ -575,7 +415,7 @@ class DskPayment extends PaymentModule
             'dskapi_gap' => $dskapi_gap
         ]);
 
-        return $this->fetch('module:dskpayment/views/templates/hook/dskpayment_cart.tpl');
+        return $this->fetch($templatePath);
     }
 
     /**
