@@ -18,6 +18,14 @@ namespace {
         define('_MODULE_DIR_', __DIR__ . '/');
     }
 
+    if (!defined('_DB_PREFIX_')) {
+        define('_DB_PREFIX_', 'ps_');
+    }
+
+    if (!defined('_MYSQL_ENGINE_')) {
+        define('_MYSQL_ENGINE_', 'InnoDB');
+    }
+
     if (class_exists(Module::class)) {
         return;
     }
@@ -68,9 +76,7 @@ namespace {
         /** @var string */
         public $warning = '';
 
-        public function __construct()
-        {
-        }
+        public function __construct() {}
 
         public function install(): bool
         {
@@ -145,8 +151,7 @@ namespace {
             bool $dontTouchAmount = false,
             $secureKey = '',
             ?Shop $shop = null
-        ): void {
-        }
+        ): void {}
 
         /**
          * @return PrestaShop\PrestaShop\Core\Payment\PaymentOption[]
@@ -195,9 +200,7 @@ namespace {
          * @param mixed $value
          * @return void
          */
-        public function assign($tpl_var, $value = null): void
-        {
-        }
+        public function assign($tpl_var, $value = null): void {}
     }
 
     class Cart
@@ -372,9 +375,7 @@ namespace {
             return false;
         }
 
-        public static function setContext(int $context): void
-        {
-        }
+        public static function setContext(int $context): void {}
     }
 
     class Controller
@@ -382,21 +383,13 @@ namespace {
         /** @var string */
         public $php_self = '';
 
-        public function addCSS(string $path): void
-        {
-        }
+        public function addCSS(string $path): void {}
 
-        public function addJS(string $path): void
-        {
-        }
+        public function addJS(string $path): void {}
 
-        public function registerJavascript(string $id, string $path, array $options = []): void
-        {
-        }
+        public function registerJavascript(string $id, string $path, array $options = []): void {}
 
-        public function registerStylesheet(string $id, string $path, array $options = []): void
-        {
-        }
+        public function registerStylesheet(string $id, string $path, array $options = []): void {}
     }
 
     class ModuleFrontController extends Controller
@@ -470,9 +463,84 @@ namespace {
             return true;
         }
 
-        public function getValue(string $sql)
+        public function getValue($sql)
         {
             return null;
+        }
+
+        public function insert(string $table, array $data): bool
+        {
+            return true;
+        }
+
+        public function update(string $table, array $data, string $where): bool
+        {
+            return true;
+        }
+
+        public function delete(string $table, string $where): bool
+        {
+            return true;
+        }
+    }
+
+    class DbQuery
+    {
+        public function select(string $fields): self
+        {
+            return $this;
+        }
+
+        public function from(string $table): self
+        {
+            return $this;
+        }
+
+        public function where(string $condition): self
+        {
+            return $this;
+        }
+
+        public function build(): string
+        {
+            return '';
+        }
+    }
+
+    class ObjectModel
+    {
+        /** @var int */
+        public $id;
+
+        /** @var array */
+        public static $definition = [];
+
+        public const TYPE_INT = 1;
+        public const TYPE_STRING = 2;
+        public const TYPE_FLOAT = 3;
+        public const TYPE_DATE = 4;
+        public const TYPE_BOOL = 5;
+
+        public function __construct($id = null)
+        {
+            if ($id) {
+                $this->id = (int) $id;
+            }
+        }
+
+        public function add($autoDate = true, $nullValues = false): bool
+        {
+            return true;
+        }
+
+        public function update($nullValues = false): bool
+        {
+            return true;
+        }
+
+        public function delete(): bool
+        {
+            return true;
         }
     }
 
@@ -488,13 +556,9 @@ namespace {
             return false;
         }
 
-        public static function redirect(string $url): void
-        {
-        }
+        public static function redirect(string $url): void {}
 
-        public static function redirectAdmin(string $url): void
-        {
-        }
+        public static function redirectAdmin(string $url): void {}
     }
 
     if (!function_exists('pSQL')) {
@@ -610,17 +674,13 @@ namespace PrestaShopBundle\Controller\Admin {
          * @param string $message
          * @return void
          */
-        public function addFlash(string $type, string $message): void
-        {
-        }
+        public function addFlash(string $type, string $message): void {}
 
         /**
          * @param array<string> $errors
          * @return void
          */
-        public function flashErrors(array $errors): void
-        {
-        }
+        public function flashErrors(array $errors): void {}
 
         /**
          * @param string $route
@@ -647,16 +707,12 @@ namespace PrestaShopBundle\Controller\Admin {
 namespace Symfony\Component\HttpFoundation {
     class Request
     {
-        public function __construct()
-        {
-        }
+        public function __construct() {}
     }
 
     class Response
     {
-        public function __construct()
-        {
-        }
+        public function __construct() {}
     }
 }
 
@@ -730,26 +786,16 @@ namespace Symfony\Component\Form {
          * @param array<string, mixed> $options
          * @return void
          */
-        public function buildForm(FormBuilderInterface $builder, array $options): void
-        {
-        }
+        public function buildForm(FormBuilderInterface $builder, array $options): void {}
     }
 }
 
 namespace Symfony\Component\Form\Extension\Core\Type {
-    class TextType extends \Symfony\Component\Form\AbstractType
-    {
-    }
-    class NumberType extends \Symfony\Component\Form\AbstractType
-    {
-    }
+    class TextType extends \Symfony\Component\Form\AbstractType {}
+    class NumberType extends \Symfony\Component\Form\AbstractType {}
 }
 
 namespace PrestaShopBundle\Form\Admin\Type {
-    class TranslatorAwareType extends \Symfony\Component\Form\AbstractType
-    {
-    }
-    class SwitchType extends \Symfony\Component\Form\AbstractType
-    {
-    }
+    class TranslatorAwareType extends \Symfony\Component\Form\AbstractType {}
+    class SwitchType extends \Symfony\Component\Form\AbstractType {}
 }

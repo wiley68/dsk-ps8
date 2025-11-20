@@ -90,7 +90,8 @@ class DskPayment extends PaymentModule
             Configuration::updateValue(
                 'DSKPAYMENT_NAME',
                 'DSK Credit API покупки на Кредит'
-            );
+            ) &&
+            $this->installDb();
     }
 
     /**
@@ -107,10 +108,47 @@ class DskPayment extends PaymentModule
             !Configuration::deleteByName('dskapi_status') ||
             !Configuration::deleteByName('dskapi_cid') ||
             !Configuration::deleteByName('dskapi_reklama') ||
-            !Configuration::deleteByName('dskapi_gap')
+            !Configuration::deleteByName('dskapi_gap') ||
+            !$this->uninstallDb()
         )
             return false;
         return true;
+    }
+
+    /**
+     * Creates required database tables for recurring plans and orders log.
+     *
+     * @return bool True on success, false otherwise
+     */
+    private function installDb()
+    {
+        $sql_orders = "CREATE TABLE IF NOT EXISTS `" . _DB_PREFIX_ . "dskpayment_orders` (
+            `id` INT(11) NOT NULL AUTO_INCREMENT,
+            `order_id` INT(11) NOT NULL,
+            `order_status` TINYINT(4) NOT NULL DEFAULT 0,
+            `created_at` DATETIME NOT NULL,
+            `updated_at` DATETIME NULL DEFAULT NULL,
+            PRIMARY KEY (`id`),
+            UNIQUE KEY `order_id` (`order_id`),
+            KEY `order_status` (`order_status`)
+        ) ENGINE=" . _MYSQL_ENGINE_ . " DEFAULT CHARSET=utf8;";
+
+        $db = Db::getInstance();
+        $okOrders = (bool) $db->execute($sql_orders);
+
+        return ($okOrders);
+    }
+
+    /**
+     * Drops database tables on module uninstall.
+     *
+     * @return bool True on success, false otherwise
+     */
+    private function uninstallDb()
+    {
+        $sql = "DROP TABLE IF EXISTS `" . _DB_PREFIX_ . "dskpayment_orders`;";
+        $db = Db::getInstance();
+        return (bool) $db->execute($sql);
     }
 
     /**
@@ -254,7 +292,6 @@ class DskPayment extends PaymentModule
             $dskapi_product_id,
             'module:dskpayment/views/templates/hook/dskpayment_product.tpl'
         );
-
     }
 
     /**
@@ -341,12 +378,12 @@ class DskPayment extends PaymentModule
 
         if (
             !isset(
-            $paramsdskapi['dsk_options'],
-            $paramsdskapi['dsk_is_visible'],
-            $paramsdskapi['dsk_status'],
-            $paramsdskapi['dsk_button_status'],
-            $paramsdskapi['dsk_reklama']
-        )
+                $paramsdskapi['dsk_options'],
+                $paramsdskapi['dsk_is_visible'],
+                $paramsdskapi['dsk_status'],
+                $paramsdskapi['dsk_button_status'],
+                $paramsdskapi['dsk_reklama']
+            )
         ) {
             return '';
         }
