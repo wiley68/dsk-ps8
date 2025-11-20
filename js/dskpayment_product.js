@@ -77,9 +77,10 @@ function dskapi_pogasitelni_vnoski_input_change() {
   xmlhttpro.send();
 }
 
-document.addEventListener('DOMContentLoaded', function () {
+function initDskapiWidget() {
   const btn_dskapi = document.getElementById('btn_dskapi');
-  if (btn_dskapi !== null) {
+  if (btn_dskapi !== null && btn_dskapi.dataset.dskapiBound !== '1') {
+    btn_dskapi.dataset.dskapiBound = '1';
     const dskapi_button_status = parseInt(
       document.getElementById('dskapi_button_status').value
     );
@@ -88,6 +89,7 @@ document.addEventListener('DOMContentLoaded', function () {
     );
     const dskapi_back_credit = document.getElementById('dskapi_back_credit');
     const dskapi_buy_credit = document.getElementById('dskapi_buy_credit');
+    const dskapi_add_to_cart = document.getElementById('dskapi_add_to_cart');
     const dskapi_buy_buttons_submit = document.querySelectorAll(
       'button[data-button-action=add-to-cart]'
     );
@@ -177,15 +179,24 @@ document.addEventListener('DOMContentLoaded', function () {
       console.log('Правим поръчка и прехвърляме към Банката');
     });
 
-    dskapi_add_to_cart.addEventListener('click', (event) => {
-      dskapiProductPopupContainer.style.display = 'none';
-      if (dskapi_buy_buttons_submit.length) {
-        document
-          .querySelectorAll('button[data-button-action="add-to-cart"]')
-          .forEach(function (button) {
-            button.click();
-          });
-      }
-    });
+    if (dskapi_add_to_cart) {
+      dskapi_add_to_cart.addEventListener('click', (event) => {
+        dskapiProductPopupContainer.style.display = 'none';
+        if (dskapi_buy_buttons_submit.length) {
+          document
+            .querySelectorAll('button[data-button-action="add-to-cart"]')
+            .forEach(function (button) {
+              button.click();
+            });
+        }
+      });
+    }
   }
-});
+}
+
+document.addEventListener('DOMContentLoaded', initDskapiWidget);
+if (typeof prestashop !== 'undefined' && prestashop.on) {
+  prestashop.on('updatedProduct', initDskapiWidget);
+  prestashop.on('updatedProductCombination', initDskapiWidget);
+  prestashop.on('updatedProductAttributes', initDskapiWidget);
+}

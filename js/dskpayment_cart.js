@@ -77,9 +77,10 @@ function dskapi_pogasitelni_vnoski_input_change() {
   xmlhttpro.send();
 }
 
-document.addEventListener('DOMContentLoaded', function () {
+function initDskapiCartWidget() {
   const btn_dskapi = document.getElementById('btn_dskapi');
-  if (btn_dskapi !== null) {
+  if (btn_dskapi !== null && btn_dskapi.dataset.dskapiBound !== '1') {
+    btn_dskapi.dataset.dskapiBound = '1';
     const dskapi_button_status = parseInt(
       document.getElementById('dskapi_button_status').value
     );
@@ -148,4 +149,10 @@ document.addEventListener('DOMContentLoaded', function () {
       console.log('Правим поръчка и прехвърляме към Банката');
     });
   }
-});
+}
+
+document.addEventListener('DOMContentLoaded', initDskapiCartWidget);
+if (typeof prestashop !== 'undefined' && prestashop.on) {
+  prestashop.on('updatedCart', initDskapiCartWidget);
+  prestashop.on('updateCart', initDskapiCartWidget);
+}

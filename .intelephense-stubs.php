@@ -22,6 +22,14 @@ namespace {
         return;
     }
 
+    class Validate
+    {
+        public static function isLoadedObject($object): bool
+        {
+            return $object !== null;
+        }
+    }
+
     class Module
     {
         /** @var string */
@@ -143,6 +151,8 @@ namespace {
         public $controller = null;
         /** @var Smarty|null */
         public $smarty = null;
+        /** @var Link|null */
+        public $link = null;
 
         public static function getContext(): self
         {
@@ -180,7 +190,7 @@ namespace {
         public $id_address_delivery = null;
         /** @var int|null */
         public $id_address_invoice = null;
-
+        /** @var int|null */
         public function getOrderTotal(bool $withTaxes, int $type = self::BOTH): float
         {
             return 0.0;
@@ -230,13 +240,13 @@ namespace {
         public $postcode = '';
         /** @var string */
         public $phone = '';
+        /** @var string */
+        public $phone_mobile = '';
+        /** @var string */
 
-        /**
-         * @return array<int, array<string, mixed>>
-         */
-        public static function getAddresses(int $idCustomer): array
+        public function __construct(int $id = 0)
         {
-            return [];
+            $this->id = $id;
         }
     }
 
@@ -357,6 +367,14 @@ namespace {
         }
     }
 
+    class Link
+    {
+        public function getModuleLink(string $module, string $controller, array $params = [], bool $ssl = false): string
+        {
+            return '/module/' . $module . '/' . $controller;
+        }
+    }
+
     class Db
     {
         /** @var Db|null */
@@ -456,6 +474,11 @@ namespace PrestaShop\PrestaShop\Core\Payment {
     class PaymentOption
     {
         public function setModuleName(string $moduleName): self
+        {
+            return $this;
+        }
+
+        public function setLogo(string $logoPath): self
         {
             return $this;
         }

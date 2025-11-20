@@ -437,23 +437,14 @@ class DskPayment extends PaymentModule
             return [];
         }
 
-        $dskapi_cid = (string) Configuration::get('dskapi_cid');
-        $dskapi_price = (float) $cart->getOrderTotal(true);
-
-        $dskapi_ch = curl_init();
-        curl_setopt($dskapi_ch, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($dskapi_ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($dskapi_ch, CURLOPT_MAXREDIRS, 2);
-        curl_setopt($dskapi_ch, CURLOPT_TIMEOUT, 5);
-        curl_setopt($dskapi_ch, CURLOPT_URL, DSKAPI_LIVEURL . '/function/getminmax.php?cid=' . $dskapi_cid);
-
-        $response = curl_exec($dskapi_ch);
-        $httpCode = curl_getinfo($dskapi_ch, CURLINFO_HTTP_CODE);
-        curl_close($dskapi_ch);
-        if ($response === false || $httpCode !== 200) {
+        $dskapi_cid = (string) Configuration::get('DSKAPI_CID');
+        if (empty($dskapi_cid)) {
             return [];
         }
-        $paramsdskapi = json_decode($response, true);
+
+        $dskapi_price = (float) $cart->getOrderTotal(true);
+
+        $paramsdskapi = $this->makeApiRequest('/function/getminmax.php?cid=' . urlencode($dskapi_cid));
         if ($paramsdskapi === null) {
             return [];
         }
@@ -476,20 +467,7 @@ class DskPayment extends PaymentModule
         $dskapi_eur = 0;
         $dskapi_currency_code = $this->context->currency->iso_code;
 
-        $dskapi_ch_eur = curl_init();
-        curl_setopt($dskapi_ch_eur, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($dskapi_ch_eur, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($dskapi_ch_eur, CURLOPT_MAXREDIRS, 3);
-        curl_setopt($dskapi_ch_eur, CURLOPT_TIMEOUT, 5);
-        curl_setopt($dskapi_ch_eur, CURLOPT_URL, DSKAPI_LIVEURL . '/function/geteur.php?cid=' . $dskapi_cid);
-
-        $response = curl_exec($dskapi_ch_eur);
-        $httpCode = curl_getinfo($dskapi_ch_eur, CURLINFO_HTTP_CODE);
-        curl_close($dskapi_ch_eur);
-        if ($response === false || $httpCode !== 200) {
-            return [];
-        }
-        $paramsdskapieur = json_decode($response, true);
+        $paramsdskapieur = $this->makeApiRequest('/function/geteur.php?cid=' . urlencode($dskapi_cid));
         if ($paramsdskapieur === null) {
             return [];
         }
@@ -521,12 +499,65 @@ class DskPayment extends PaymentModule
         $this->context->smarty->assign([
             'dskapi_logo' => _MODULE_DIR_ . $this->name . '/logo.png'
         ]);
+        $dskapi_firstname = isset($this->context->customer->firstname) ? trim($this->context->customer->firstname) : '';
+        $dskapi_lastname = isset($this->context->customer->lastname) ? trim($this->context->customer->lastname) : '';
+        $dskapi_email = isset($this->context->customer->email) ? trim($this->context->customer->email) : '';
+
+        $addressDelivery = null;
+        if ($cart->id_address_delivery) {
+            $tmpAddress = new Address((int) $cart->id_address_delivery);
+            if (Validate::isLoadedObject($tmpAddress)) {
+                $addressDelivery = $tmpAddress;
+            }
+        }
+
+        $dskapi_phone = '';
+        $dskapi_address1 = '';
+        $dskapi_address1city = '';
+        $dskapi_postcode = '';
+
+        if ($addressDelivery) {
+            $dskapi_phone = trim((string) ($addressDelivery->phone_mobile ?: $addressDelivery->phone ?: ''));
+            $dskapi_address1 = trim((string) $addressDelivery->address1);
+            $dskapi_address1city = trim((string) $addressDelivery->city);
+            $dskapi_postcode = trim((string) $addressDelivery->postcode);
+        }
+
+        $invoiceAddress = null;
+        if ($cart->id_address_invoice && $cart->id_address_invoice != $cart->id_address_delivery) {
+            $tmpInvoiceAddress = new Address((int) $cart->id_address_invoice);
+            if (Validate::isLoadedObject($tmpInvoiceAddress)) {
+                $invoiceAddress = $tmpInvoiceAddress;
+            }
+        }
+
+        $dskapi_address2 = $invoiceAddress ? trim((string) $invoiceAddress->address1) : $dskapi_address1;
+        $dskapi_address2city = $invoiceAddress ? trim((string) $invoiceAddress->city) : $dskapi_address1city;
 
         $payment_options = [];
-
         $newOption_DSK = new PaymentOption();
         $newOption_DSK->setModuleName($this->name);
-        $newOption_DSK->setCallToActionText('DSK Credit API покупки на Кредит');
+        $newOption_DSK->setCallToActionText('Банка ДСК');
+        $newOption_DSK->setLogo(_MODULE_DIR_ . $this->name . '/logo.png');
+        $newOption_DSK->setAction(
+            $this->context->link->getModuleLink(
+                $this->name,
+                'validation',
+                [
+                    "dskapi_firstname" => $dskapi_firstname,
+                    "dskapi_lastname" => $dskapi_lastname,
+                    "dskapi_phone" => $dskapi_phone,
+                    "dskapi_email" => $dskapi_email,
+                    "dskapi_address2" => $dskapi_address2,
+                    "dskapi_address2city" => $dskapi_address2city,
+                    "dskapi_address1" => $dskapi_address1,
+                    "dskapi_address1city" => $dskapi_address1city,
+                    "dskapi_postcode" => $dskapi_postcode,
+                    "dskapi_eur" => $dskapi_eur
+                ],
+                true
+            )
+        );
         $newOption_DSK->setAdditionalInformation($this->fetch('module:dskpayment/views/templates/hook/dskpayment_checkout.tpl'));
         $payment_options[] = $newOption_DSK;
 
