@@ -6,7 +6,7 @@
     <description><![CDATA[Дава възможност на Вашите клиенти да закупуват стока на изплащане с DSK Credit API.]]></description>
     <author><![CDATA[Ilko Ivanov]]></author>
     <tab><![CDATA[payments_gateways]]></tab>
-    <confirmUninstall><![CDATA[Сигурни ли сте, че искате да деинсталирате?]]></confirmUninstall>
+	<confirmUninstall><![CDATA[Сигурни ли сте, че желаете да го деинсталирате?]]></confirmUninstall>
     <is_configurable>1</is_configurable>
     <need_instance>0</need_instance>
 </module>

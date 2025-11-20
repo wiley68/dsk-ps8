@@ -6,7 +6,6 @@ namespace PrestaShop\Module\DskPayment\Form;
 
 use PrestaShopBundle\Form\Admin\Type\TranslatorAwareType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
-use Symfony\Component\Form\Extension\Core\Type\NumberType;
 use PrestaShopBundle\Form\Admin\Type\SwitchType;
 use Symfony\Component\Form\FormBuilderInterface;
 
@@ -36,10 +35,15 @@ class DskPaymentConfigurationType extends TranslatorAwareType
                     'help' => 'Можете да включвате или изключвате показването на реклама в началната страница на магазина.',
                 ]
             )
-            ->add('dskapi_gap', NumberType::class, [
+            ->add('dskapi_gap', TextType::class, [
                 'label' => 'Свободно място над бутона',
                 'help' => 'Свободно място над бутона в px.',
-                'required' => true,
+                'required' => false,
+                'empty_data' => null,
+                'attr' => [
+                    'type' => 'number',
+                    'placeholder' => '0',
+                ],
             ]);
     }
 }

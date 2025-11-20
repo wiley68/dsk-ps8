@@ -39,6 +39,7 @@ class DskPayment extends PaymentModule
     public function __construct()
     {
         $this->name = 'dskpayment';
+        $this->tab = 'payments_gateways';
         $this->version = '1.2.0';
         $this->author = 'Ilko Ivanov';
         $this->need_instance = 0;
@@ -192,9 +193,13 @@ class DskPayment extends PaymentModule
         }
     }
 
-    public function hookDisplayProductAdditionalInfo($params): void {}
+    public function hookDisplayProductAdditionalInfo($params): void
+    {
+    }
 
-    public function hookDisplayShoppingCart($params): void {}
+    public function hookDisplayShoppingCart($params): void
+    {
+    }
 
     public function hookPaymentOptions($params)
     {
@@ -265,7 +270,7 @@ class DskPayment extends PaymentModule
             return [];
         }
 
-        $dskapi_eur = (int)$paramsdskapieur['dsk_eur'];
+        $dskapi_eur = (int) $paramsdskapieur['dsk_eur'];
         switch ($dskapi_eur) {
             case 0:
                 break;

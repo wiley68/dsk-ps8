@@ -34,7 +34,7 @@ final class DskPaymentConfigurationDataConfiguration implements DataConfiguratio
         $return['dskapi_status'] = $this->configuration->get(static::DSKAPI_STATUS);
         $return['dskapi_cid'] = $this->configuration->get(static::DSKAPI_CID);
         $return['dskapi_reklama'] = $this->configuration->get(static::DSKAPI_REKLAMA);
-        $return['dskapi_gap'] = $this->configuration->get(static::DSKAPI_GAP);
+        $return['dskapi_gap'] = $this->configuration->get(static::DSKAPI_GAP) ?: 0;
 
         return $return;
     }
@@ -47,7 +47,15 @@ final class DskPaymentConfigurationDataConfiguration implements DataConfiguratio
             $this->configuration->set(static::DSKAPI_STATUS, $configuration['dskapi_status']);
             $this->configuration->set(static::DSKAPI_CID, $configuration['dskapi_cid']);
             $this->configuration->set(static::DSKAPI_REKLAMA, $configuration['dskapi_reklama']);
-            $this->configuration->set(static::DSKAPI_GAP, $configuration['dskapi_gap']);
+
+            // Нормализираме dskapi_gap - ако е празно или не е валидно число, записваме 0
+            $dskapiGap = $configuration['dskapi_gap'] ?? null;
+            if ($dskapiGap === null || $dskapiGap === '' || !is_numeric($dskapiGap)) {
+                $dskapiGap = 0;
+            } else {
+                $dskapiGap = (int) $dskapiGap;
+            }
+            $this->configuration->set(static::DSKAPI_GAP, $dskapiGap);
         }
 
         /* Errors are returned here. */
@@ -64,7 +72,6 @@ final class DskPaymentConfigurationDataConfiguration implements DataConfiguratio
         return
             isset($configuration['dskapi_status']) &&
             isset($configuration['dskapi_cid']) &&
-            isset($configuration['dskapi_reklama']) &&
-            isset($configuration['dskapi_gap']);
+            isset($configuration['dskapi_reklama']);
     }
 }
