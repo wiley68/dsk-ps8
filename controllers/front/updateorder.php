@@ -38,7 +38,7 @@ class DskpaymentUpdateorderModuleFrontController extends ModuleFrontController
 
         // Only allow POST requests
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            $this->result['error'] = 'Only POST method is allowed';
+            $this->result['error'] = 'Разрешен е само POST метод';
             parent::initContent();
             return;
         }
@@ -46,7 +46,7 @@ class DskpaymentUpdateorderModuleFrontController extends ModuleFrontController
         // Get configuration
         $dskapi_cid = (string) Configuration::get('DSKAPI_CID');
         if (empty($dskapi_cid)) {
-            $this->result['error'] = 'DSK API CID not configured';
+            $this->result['error'] = 'CID на DSK API не е конфигуриран';
             parent::initContent();
             return;
         }
@@ -54,7 +54,7 @@ class DskpaymentUpdateorderModuleFrontController extends ModuleFrontController
         // Get and validate order_id
         $dskapi_order_id = (int) Tools::getValue('order_id', 0);
         if ($dskapi_order_id <= 0) {
-            $this->result['error'] = 'Invalid order_id';
+            $this->result['error'] = 'Невалиден order_id';
             $this->result['dskapi_order_id'] = 0;
             parent::initContent();
             return;
@@ -63,7 +63,7 @@ class DskpaymentUpdateorderModuleFrontController extends ModuleFrontController
         // Get and validate status (0-8)
         $dskapi_status = (int) Tools::getValue('status', 0);
         if ($dskapi_status < 0 || $dskapi_status > 8) {
-            $this->result['error'] = 'Invalid status. Must be between 0 and 8';
+            $this->result['error'] = 'Невалиден статус. Мора да е между 0 и 8';
             $this->result['dskapi_status'] = $dskapi_status;
             parent::initContent();
             return;
@@ -74,7 +74,7 @@ class DskpaymentUpdateorderModuleFrontController extends ModuleFrontController
 
         // Verify calculator_id matches configured CID
         if (empty($dskapi_calculator_id) || $dskapi_calculator_id !== $dskapi_cid) {
-            $this->result['error'] = 'Invalid calculator_id';
+            $this->result['error'] = 'Невалиден calculator_id';
             $this->result['dskapi_order_id'] = $dskapi_order_id;
             $this->result['dskapi_status'] = $dskapi_status;
             $this->result['dskapi_calculator_id'] = $dskapi_calculator_id;
@@ -86,9 +86,9 @@ class DskpaymentUpdateorderModuleFrontController extends ModuleFrontController
         $updateResult = DskPaymentOrder::updateStatus($dskapi_order_id, $dskapi_status);
         if ($updateResult) {
             $this->result['success'] = 'success';
-            $this->result['message'] = 'Order status updated successfully';
+            $this->result['message'] = 'Статусът на поръчката е обновен успешно';
         } else {
-            $this->result['error'] = 'Failed to update order status';
+            $this->result['error'] = 'Неуспешно обновяване на статуса на поръчката';
         }
 
         $this->result['dskapi_order_id'] = $dskapi_order_id;
@@ -126,6 +126,6 @@ class DskpaymentUpdateorderModuleFrontController extends ModuleFrontController
     public function displayAjax(): void
     {
         header('Content-Type: application/json; charset=utf-8');
-        die(Tools::jsonEncode($this->result));
+        die(json_encode($this->result, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
     }
 }
