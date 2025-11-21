@@ -418,11 +418,25 @@ namespace {
         public $context;
         /** @var PaymentModule|null */
         public $module;
+        /** @var bool */
+        public $ajax = false;
 
         public function __construct()
         {
             $this->context = Context::getContext();
             $this->module = new PaymentModule();
+        }
+
+        public function initContent(): void
+        {
+        }
+
+        public function initHeader(): void
+        {
+        }
+
+        public function displayAjax(): void
+        {
         }
     }
 
@@ -587,6 +601,11 @@ namespace {
 
         public static function redirectAdmin(string $url): void
         {
+        }
+
+        public static function jsonEncode($data): string
+        {
+            return '';
         }
     }
 
