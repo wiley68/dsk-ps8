@@ -165,6 +165,8 @@ class DskPaymentValidationModuleFrontController extends ModuleFrontController
             die($this->module->l('Модулът не е конфигуриран правилно. Моля свържете се с администратора.', 'validation'));
         }
 
+        $currencySpecial = (int) $this->context->currency->id;
+        /** @var Currency|int|null $currencySpecial */
         $this->module->validateOrder(
             (int) $cart->id,
             Configuration::get('PS_OS_DSKPAYMENT'),
@@ -172,7 +174,7 @@ class DskPaymentValidationModuleFrontController extends ModuleFrontController
             $this->module->displayName,
             null,
             [],
-            $this->context->currency,
+            $currencySpecial,
             false,
             $customer->secure_key
         );

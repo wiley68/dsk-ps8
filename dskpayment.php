@@ -24,6 +24,8 @@ if (file_exists($autoloadPath)) {
     require_once $autoloadPath;
 }
 
+require_once __DIR__ . '/classes/DskPaymentOrder.php';
+
 use PrestaShop\PrestaShop\Core\Payment\PaymentOption;
 
 /**
