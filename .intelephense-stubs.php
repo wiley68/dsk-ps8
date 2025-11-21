@@ -873,3 +873,96 @@ namespace PrestaShopBundle\Form\Admin\Type {
     {
     }
 }
+
+namespace PrestaShop\PrestaShop\Core\Grid\Definition {
+    interface GridDefinitionInterface
+    {
+        /**
+         * @return \PrestaShop\PrestaShop\Core\Grid\Column\ColumnCollection
+         */
+        public function getColumns();
+    }
+}
+
+namespace PrestaShop\PrestaShop\Core\Grid\Column {
+    class ColumnCollection
+    {
+        /**
+         * @param string $columnId
+         * @param \PrestaShop\PrestaShop\Core\Grid\Column\ColumnInterface $column
+         * @return self
+         */
+        public function addAfter(string $columnId, $column): self
+        {
+            return $this;
+        }
+
+        /**
+         * @param \PrestaShop\PrestaShop\Core\Grid\Column\ColumnInterface $column
+         * @return self
+         */
+        public function add($column): self
+        {
+            return $this;
+        }
+    }
+
+    interface ColumnInterface
+    {
+    }
+}
+
+namespace PrestaShop\PrestaShop\Core\Grid\Column\Type {
+    use PrestaShop\PrestaShop\Core\Grid\Column\ColumnInterface;
+
+    class DataColumn implements ColumnInterface
+    {
+        public function __construct(string $id)
+        {
+        }
+
+        /**
+         * @param string $name
+         * @return self
+         */
+        public function setName(string $name): self
+        {
+            return $this;
+        }
+
+        /**
+         * @param array<string, mixed> $options
+         * @return self
+         */
+        public function setOptions(array $options): self
+        {
+            return $this;
+        }
+    }
+}
+
+namespace Doctrine\DBAL\Query {
+    class QueryBuilder
+    {
+        /**
+         * @param string $select
+         * @return self
+         */
+        public function addSelect(string $select): self
+        {
+            return $this;
+        }
+
+        /**
+         * @param string $fromAlias
+         * @param string $join
+         * @param string $alias
+         * @param string $condition
+         * @return self
+         */
+        public function leftJoin(string $fromAlias, string $join, string $alias, string $condition): self
+        {
+            return $this;
+        }
+    }
+}

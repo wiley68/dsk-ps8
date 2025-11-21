@@ -38,7 +38,11 @@ class DskPayment extends PaymentModule
         'ActionFrontControllerSetMedia',
         'displayProductAdditionalInfo',
         'displayShoppingCart',
-        'paymentOptions'
+        'paymentOptions',
+        'actionOrderGridDefinitionModifier',
+        'actionOrderGridQueryBuilderModifier',
+        'actionOrderGridDataModifier',
+        'actionOrderGridPresenterModifier'
     ];
 
     /**
@@ -793,6 +797,154 @@ class DskPayment extends PaymentModule
         }
 
         return $decoded;
+    }
+
+    /**
+     * Modifies the order grid definition to add DSK payment status column.
+     *
+     * @param array $params Contains 'definition' key with GridDefinitionInterface
+     *
+     * @return void
+     */
+    public function hookActionOrderGridDefinitionModifier(array $params): void
+    {
+        /** @var \PrestaShop\PrestaShop\Core\Grid\Definition\GridDefinitionInterface $definition */
+        $definition = $params['definition'];
+
+        /** @var \PrestaShop\PrestaShop\Core\Grid\Column\Type\DataColumn $dskStatusColumn */
+        $dskStatusColumn = new \PrestaShop\PrestaShop\Core\Grid\Column\Type\DataColumn('dsk_payment_status');
+        $dskStatusColumn->setName($this->l('DSK Статус'));
+        $dskStatusColumn->setOptions([
+            'field' => 'dsk_payment_status',
+        ]);
+
+        // Try to add after 'osname' (order state name), fallback to 'add' if column not found
+        $columns = $definition->getColumns();
+        try {
+            $columns->addAfter('osname', $dskStatusColumn);
+        } catch (\Exception $e) {
+            // Fallback: if 'osname' column doesn't exist, try 'status' or just add at the end
+            try {
+                $columns->addAfter('status', $dskStatusColumn);
+            } catch (\Exception $e2) {
+                $columns->add($dskStatusColumn);
+            }
+        }
+    }
+
+    /**
+     * Modifies the order grid query builder to join DSK payment orders table.
+     *
+     * @param array $params Contains 'search_query_builder' key with DoctrineQueryBuilder
+     *
+     * @return void
+     */
+    public function hookActionOrderGridQueryBuilderModifier(array $params): void
+    {
+        /** @var \Doctrine\DBAL\Query\QueryBuilder $searchQueryBuilder */
+        $searchQueryBuilder = $params['search_query_builder'];
+
+        // Use COALESCE to return NULL instead of 0 when no record exists
+        $searchQueryBuilder->addSelect('COALESCE(dpo.order_status, NULL) as dsk_payment_status');
+        $searchQueryBuilder->leftJoin(
+            'o',
+            _DB_PREFIX_ . 'dskpayment_orders',
+            'dpo',
+            'dpo.order_id = o.id_order'
+        );
+    }
+
+    /**
+     * Modifies the order grid data to format DSK payment status.
+     *
+     * @param array $params Contains 'data' key with array of orders
+     *
+     * @return void
+     */
+    public function hookActionOrderGridDataModifier(array $params): void
+    {
+        if (!isset($params['data']) || !is_array($params['data'])) {
+            return;
+        }
+
+        foreach ($params['data'] as &$order) {
+            if (isset($order['dsk_payment_status']) && $order['dsk_payment_status'] !== null) {
+                $statusValue = $order['dsk_payment_status'];
+                // Convert to int and format
+                $order['dsk_payment_status'] = $this->getDskPaymentStatusLabel((int) $statusValue);
+            } else {
+                $order['dsk_payment_status'] = '-';
+            }
+        }
+    }
+
+    /**
+     * Modifies the order grid presenter to format DSK payment status.
+     *
+     * @param array $params Contains 'presented_grid' key with GridInterface
+     *
+     * @return void
+     */
+    public function hookActionOrderGridPresenterModifier(array $params): void
+    {
+        if (!isset($params['presented_grid']['data']['records'])) {
+            return;
+        }
+
+        // Convert iterator to array if needed
+        $records = $params['presented_grid']['data']['records'];
+        if (!is_array($records)) {
+            $records = iterator_to_array($records);
+        }
+
+        foreach ($records as $key => $record) {
+            if (isset($record['dsk_payment_status']) && $record['dsk_payment_status'] !== null && $record['dsk_payment_status'] !== '') {
+                $statusValue = $record['dsk_payment_status'];
+                // Skip if already formatted (contains non-numeric characters)
+                if (!is_numeric($statusValue)) {
+                    continue;
+                }
+                $records[$key]['dsk_payment_status'] = $this->getDskPaymentStatusLabel((int) $statusValue);
+            } else {
+                $records[$key]['dsk_payment_status'] = '-';
+            }
+        }
+
+        // Update the records back
+        $params['presented_grid']['data']['records'] = $records;
+    }
+
+    /**
+     * Returns human-readable label for DSK payment status.
+     *
+     * @param int $status Status code (0-8)
+     *
+     * @return string
+     */
+    private function getDskPaymentStatusLabel(int $status): string
+    {
+        switch ($status) {
+            case 0:
+                return $this->l('Създадена Апликация');
+            case 1:
+                return $this->l('Избрана финансова схема');
+            case 2:
+                return $this->l('Попълнена Апликация');
+            case 3:
+                return $this->l('Изпратен Банка');
+            case 4:
+                return $this->l('Неуспешен контакт с клиента');
+            case 5:
+                return $this->l('Анулирана апликация');
+            case 6:
+                return $this->l('Отказана апликация');
+            case 7:
+                return $this->l('Подписан договор');
+            case 8:
+                return $this->l('Усвоен кредит');
+            default:
+                return $this->l('Създадена Апликация');
+        }
     }
 
     /**
