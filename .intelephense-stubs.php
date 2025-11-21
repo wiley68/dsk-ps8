@@ -364,6 +364,11 @@ namespace {
         public $id;
         /** @var string */
         public $iso_code = 'en';
+
+        public static function getLanguages(bool $active = true): array
+        {
+            return [];
+        }
     }
 
     class Shop
@@ -516,6 +521,11 @@ namespace {
             return $this;
         }
 
+        public function orderBy(string $orderBy): self
+        {
+            return $this;
+        }
+
         public function build(): string
         {
             return '';
@@ -623,18 +633,45 @@ namespace {
         public $name = [];
         /** @var bool */
         public $send_mail = false;
+        /** @var bool */
+        public $send_email = false;
         /** @var string */
         public $template = '';
         /** @var bool */
         public $invoice = false;
+        /** @var bool */
+        public $hidden = false;
         /** @var string */
         public $color = '';
         /** @var bool */
         public $unremovable = false;
         /** @var bool */
         public $logable = false;
+        /** @var bool */
+        public $active = false;
+        /** @var string */
+        public $module_name = '';
+
+        public function __construct(int $id = 0)
+        {
+        }
 
         public function add(): bool
+        {
+            return true;
+        }
+
+        public function update(): bool
+        {
+            return true;
+        }
+
+        public static function existsInDatabase(int $idOrderState, string $table): bool
+        {
+            return true;
+        }
+
+        public function delete(): bool
         {
             return true;
         }

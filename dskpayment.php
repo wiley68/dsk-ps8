@@ -74,26 +74,14 @@ class DskPayment extends PaymentModule
         if (Shop::isFeatureActive())
             Shop::setContext(Shop::CONTEXT_ALL);
 
-        if (!(Configuration::get('PS_OS_DSKPAYMENT') > 0)) {
-            $dskpayment_OrderState = new OrderState();
-            $dskpayment_OrderState->name = array_fill(0, 10, "DSK Credit API покупки на Кредит");
-            $dskpayment_OrderState->send_mail = false;
-            $dskpayment_OrderState->template = "";
-            $dskpayment_OrderState->invoice = false;
-            $dskpayment_OrderState->color = "#DDEAF8";
-            $dskpayment_OrderState->unremovable = false;
-            $dskpayment_OrderState->logable = false;
-            $dskpayment_OrderState->add();
-            Configuration::updateValue('PS_OS_DSKPAYMENT', $dskpayment_OrderState->id);
-        }
-
         return parent::install() &&
             (bool) $this->registerHook(static::HOOKS) &&
             Configuration::updateValue(
                 'DSKPAYMENT_NAME',
                 'DSK Credit API покупки на Кредит'
             ) &&
-            $this->installDb();
+            $this->installDb() &&
+            $this->installOrderStates();
     }
 
     /**
@@ -111,7 +99,8 @@ class DskPayment extends PaymentModule
             !Configuration::deleteByName('dskapi_cid') ||
             !Configuration::deleteByName('dskapi_reklama') ||
             !Configuration::deleteByName('dskapi_gap') ||
-            !$this->uninstallDb()
+            !$this->uninstallDb() ||
+            !$this->uninstallOrderStates()
         )
             return false;
         return true;
@@ -151,6 +140,100 @@ class DskPayment extends PaymentModule
         $sql = "DROP TABLE IF EXISTS `" . _DB_PREFIX_ . "dskpayment_orders`;";
         $db = Db::getInstance();
         return (bool) $db->execute($sql);
+    }
+
+    private function installOrderStates()
+    {
+        return $this->createOrderState(
+            'PS_OS_DSKPAYMENT',
+            'DSK Credit',
+            '#3d70b2',
+            true,
+            true,
+            false
+        );
+    }
+
+    private function uninstallOrderStates()
+    {
+        $id_state = (int) Configuration::get('PS_OS_DSKPAYMENT');
+        if ($id_state > 0) {
+            $orderState = new OrderState($id_state);
+            if (Validate::isLoadedObject($orderState)) {
+                $orderState->delete();
+            }
+        }
+
+        return true;
+    }
+
+    private function createOrderState($configKey, $name, $color, $logable, $invoice, $hidden)
+    {
+        $id_state = (int) Configuration::get($configKey);
+        if ($id_state > 0 && OrderState::existsInDatabase($id_state, 'order_state')) {
+            return true;
+        }
+
+        $existingId = (int) Db::getInstance()->getValue(
+            (new DbQuery())
+                ->select('id_order_state')
+                ->from('order_state')
+                ->where('module_name = \'' . pSQL($this->name) . '\'')
+                ->where('hidden = ' . (int) $hidden)
+                ->orderBy('id_order_state DESC')
+        );
+
+        if ($existingId > 0 && OrderState::existsInDatabase($existingId, 'order_state')) {
+            $orderState = new OrderState($existingId);
+            if (Validate::isLoadedObject($orderState)) {
+                $orderState->color = $color;
+                $orderState->logable = $logable;
+                $orderState->invoice = $invoice;
+                $orderState->send_email = false;
+                $orderState->hidden = $hidden;
+                $orderState->unremovable = false;
+                $orderState->active = true;
+                $orderState->module_name = $this->name;
+
+                $languages = Language::getLanguages(false);
+                foreach ($languages as $language) {
+                    $idLang = (int) $language['id_lang'];
+                    $orderState->name[$idLang] = $this->l($name);
+                }
+
+                $orderState->update();
+            }
+
+            Configuration::updateValue($configKey, $existingId);
+
+            return true;
+        }
+
+        /** @var OrderState $orderState */
+        $orderState = new OrderState();
+        $orderState->color = $color;
+        $orderState->logable = $logable;
+        $orderState->invoice = $invoice;
+        $orderState->send_email = false;
+        $orderState->hidden = $hidden;
+        $orderState->unremovable = false;
+        $orderState->active = true;
+        $orderState->module_name = $this->name;
+
+        /** @var array<int, array<string, mixed>> $languages */
+        $languages = Language::getLanguages(false);
+        foreach ($languages as $language) {
+            $idLang = (int) $language['id_lang'];
+            $orderState->name[$idLang] = $this->l($name);
+        }
+
+        if (!$orderState->add()) {
+            return false;
+        }
+
+        Configuration::updateValue($configKey, (int) $orderState->id);
+
+        return true;
     }
 
     /**
