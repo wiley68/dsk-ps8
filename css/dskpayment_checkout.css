@@ -1,0 +1,14 @@
+.dskapi_hr {
+  padding-top: 10px !important;
+  width: 100% !important;
+  border-top: 0px none white !important;
+  border-left: 0px none white !important;
+  border-right: 0px none white !important;
+  border-bottom: 1px solid #01a66c !important;
+}
+.dskapi_row_footer {
+  display: flex !important;
+  flex-direction: column !important;
+  flex: 1 !important;
+  padding: 5px 10px !important;
+}

@@ -237,7 +237,18 @@ class DskPayment extends PaymentModule
         }
         if ('order' === $this->context->controller->php_self) {
             $checkoutJsPath = _PS_MODULE_DIR_ . $this->name . '/js/dskpayment_checkout.js';
-
+            $checkoutCssPath = _PS_MODULE_DIR_ . $this->name . '/css/dskpayment_checkout.css';
+            if (file_exists($checkoutCssPath)) {
+                $this->context->controller->registerStylesheet(
+                    'module-dskpayment-checkout-css',
+                    'modules/' . $this->name . '/css/dskpayment_checkout.css',
+                    [
+                        'media' => 'all',
+                        'priority' => 200,
+                        'version' => filemtime($checkoutCssPath)
+                    ]
+                );
+            }
             if (file_exists($checkoutJsPath)) {
                 $this->context->controller->registerJavascript(
                     'module-dskpayment-checkout-js',
@@ -365,12 +376,12 @@ class DskPayment extends PaymentModule
 
         if (
             !isset(
-                $paramsdskapi['dsk_options'],
-                $paramsdskapi['dsk_is_visible'],
-                $paramsdskapi['dsk_status'],
-                $paramsdskapi['dsk_button_status'],
-                $paramsdskapi['dsk_reklama']
-            )
+            $paramsdskapi['dsk_options'],
+            $paramsdskapi['dsk_is_visible'],
+            $paramsdskapi['dsk_status'],
+            $paramsdskapi['dsk_button_status'],
+            $paramsdskapi['dsk_reklama']
+        )
         ) {
             return '';
         }
@@ -574,7 +585,12 @@ class DskPayment extends PaymentModule
             'dskapi_address1city' => $dskapi_address1city,
             'dskapi_postcode' => $dskapi_postcode,
             'dskapi_eur' => $dskapi_eur,
-            'dskapi_validation_url' => $this->context->link->getModuleLink($this->name, 'validation', [], true),
+            'dskapi_action' => $this->context->link->getModuleLink(
+                $this->name,
+                'validation',
+                ['dskapi_card' => 0],
+                true
+            ),
             'dskapi_token' => $token,
             'dskapi_cart_id' => $cart->id
         ]);

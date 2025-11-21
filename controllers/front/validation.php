@@ -32,22 +32,6 @@ if (!defined('_PS_VERSION_')) {
 class DskPaymentValidationModuleFrontController extends ModuleFrontController
 {
     /**
-     * @see FrontController::initContent()
-     */
-    public function initContent()
-    {
-        // При GET заявки пренасочваме към страницата за поръчка
-        Tools::redirect($this->context->link->getPageLink(
-            'order',
-            true,
-            (int) $this->context->language->id,
-            [
-                'step' => 1
-            ]
-        ));
-    }
-
-    /**
      * @see FrontController::postProcess()
      */
     public function postProcess()
