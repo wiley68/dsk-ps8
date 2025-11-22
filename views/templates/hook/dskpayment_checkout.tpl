@@ -9,86 +9,39 @@
 *}
 
 {* Скрыта POST форма за изпращане на данните *}
-<form
-    method="POST"
-    action="{$dskapi_action}"
->
-    <input
-        type="hidden"
-        name="token"
-        value="{$dskapi_token|escape:'html':'UTF-8'}"
-    />
-    <input
-        type="hidden"
-        name="dskapi_cart_id"
-        value="{$dskapi_cart_id|escape:'html':'UTF-8'}"
-    />
-    <input
-        type="hidden"
-        name="dskapi_firstname"
-        value="{$dskapi_firstname|escape:'html':'UTF-8'}"
-    />
-    <input
-        type="hidden"
-        name="dskapi_lastname"
-        value="{$dskapi_lastname|escape:'html':'UTF-8'}"
-    />
-    <input
-        type="hidden"
-        name="dskapi_phone"
-        value="{$dskapi_phone|escape:'html':'UTF-8'}"
-    />
-    <input
-        type="hidden"
-        name="dskapi_email"
-        value="{$dskapi_email|escape:'html':'UTF-8'}"
-    />
-    <input
-        type="hidden"
-        name="dskapi_address2"
-        value="{$dskapi_address2|escape:'html':'UTF-8'}"
-    />
-    <input
-        type="hidden"
-        name="dskapi_address2city"
-        value="{$dskapi_address2city|escape:'html':'UTF-8'}"
-    />
-    <input
-        type="hidden"
-        name="dskapi_address1"
-        value="{$dskapi_address1|escape:'html':'UTF-8'}"
-    />
-    <input
-        type="hidden"
-        name="dskapi_address1city"
-        value="{$dskapi_address1city|escape:'html':'UTF-8'}"
-    />
-    <input
-        type="hidden"
-        name="dskapi_postcode"
-        value="{$dskapi_postcode|escape:'html':'UTF-8'}"
-    />
-    <input
-        type="hidden"
-        name="dskapi_eur"
-        value="{$dskapi_eur|escape:'html':'UTF-8'}"
-    />
+<form method="POST" action="{$dskapi_action}">
+    <input type="hidden" name="token" value="{$dskapi_token|escape:'html':'UTF-8'}" />
+    <input type="hidden" name="dskapi_cart_id" value="{$dskapi_cart_id|escape:'html':'UTF-8'}" />
+    <input type="hidden" name="dskapi_firstname" value="{$dskapi_firstname|escape:'html':'UTF-8'}" />
+    <input type="hidden" name="dskapi_lastname" value="{$dskapi_lastname|escape:'html':'UTF-8'}" />
+    <input type="hidden" name="dskapi_phone" value="{$dskapi_phone|escape:'html':'UTF-8'}" />
+    <input type="hidden" name="dskapi_email" value="{$dskapi_email|escape:'html':'UTF-8'}" />
+    <input type="hidden" name="dskapi_address2" value="{$dskapi_address2|escape:'html':'UTF-8'}" />
+    <input type="hidden" name="dskapi_address2city" value="{$dskapi_address2city|escape:'html':'UTF-8'}" />
+    <input type="hidden" name="dskapi_address1" value="{$dskapi_address1|escape:'html':'UTF-8'}" />
+    <input type="hidden" name="dskapi_address1city" value="{$dskapi_address1city|escape:'html':'UTF-8'}" />
+    <input type="hidden" name="dskapi_postcode" value="{$dskapi_postcode|escape:'html':'UTF-8'}" />
+    <input type="hidden" name="dskapi_eur" value="{$dskapi_eur|escape:'html':'UTF-8'}" />
+    <div>
+        <img src="{$dskapi_logo|escape:'html':'UTF-8'}" alt="DSK Credit" />
+    </div>
     <div>
         С избора си да финансирате покупката чрез Банка ДСК Вие декларирате, че сте запознат с Информацията относно
         обработването на лични данни на физически лица от Банка ДСК АД.
         <br />
-        <a
-            target="_blank"
-            href="https://dskbank.bg/docs/default-source/gdpr/%D0%B8%D0%BD%D1%84%D0%BE%D1%80%D0%BC%D0%B0%D1%86%D0%B8%D1%8F-%D0%BE%D1%82%D0%BD%D0%BE%D1%81%D0%BD%D0%BE-%D0%BE%D0%B1%D1%80%D0%B0%D0%B1%D0%BE%D1%82%D0%B2%D0%B0%D0%BD%D0%B5%D1%82%D0%BE-%D0%BD%D0%B0-%D0%BB%D0%B8%D1%87%D0%BD%D0%B8-%D0%B4%D0%B0%D0%BD%D0%BD%D0%B8-%D0%BD%D0%B0-%D1%84%D0%B8%D0%B7%D0%B8%D1%87%D0%B5%D1%81%D0%BA%D0%B8-%D0%BB%D0%B8%D1%86%D0%B0-%D0%BE%D1%82-%D0%B1%D0%B0%D0%BD%D0%BA%D0%B0-%D0%B4%D1%81%D0%BA-%D0%B0%D0%B4-%D0%B8-%D1%81%D1%8A%D0%B3%D0%BB%D0%B0%D1%81%D0%B8%D1%8F-%D0%B7%D0%B0-%D0%BE%D0%B1%D1%80%D0%B0%D0%B1%D0%BE%D1%82%D0%B2%D0%B0%D0%BD%D0%B5-%D0%BD%D0%B0-%D0%BB%D0%B8%D1%87%D0%BD%D0%B8-%D0%B4%D0%B0%D0%BD%D0%BD%D0%B8.pdf"
-        >Информация
+        <a target="_blank"
+            href="https://dskbank.bg/docs/default-source/gdpr/%D0%B8%D0%BD%D1%84%D0%BE%D1%80%D0%BC%D0%B0%D1%86%D0%B8%D1%8F-%D0%BE%D1%82%D0%BD%D0%BE%D1%81%D0%BD%D0%BE-%D0%BE%D0%B1%D1%80%D0%B0%D0%B1%D0%BE%D1%82%D0%B2%D0%B0%D0%BD%D0%B5%D1%82%D0%BE-%D0%BD%D0%B0-%D0%BB%D0%B8%D1%87%D0%BD%D0%B8-%D0%B4%D0%B0%D0%BD%D0%BD%D0%B8-%D0%BD%D0%B0-%D1%84%D0%B8%D0%B7%D0%B8%D1%87%D0%B5%D1%81%D0%BA%D0%B8-%D0%BB%D0%B8%D1%86%D0%B0-%D0%BE%D1%82-%D0%B1%D0%B0%D0%BD%D0%BA%D0%B0-%D0%B4%D1%81%D0%BA-%D0%B0%D0%B4-%D0%B8-%D1%81%D1%8A%D0%B3%D0%BB%D0%B0%D1%81%D0%B8%D1%8F-%D0%B7%D0%B0-%D0%BE%D0%B1%D1%80%D0%B0%D0%B1%D0%BE%D1%82%D0%B2%D0%B0%D0%BD%D0%B5-%D0%BD%D0%B0-%D0%BB%D0%B8%D1%87%D0%BD%D0%B8-%D0%B4%D0%B0%D0%BD%D0%BD%D0%B8.pdf">Информация
             относно обработването на лични данни на физически лица от 'Банка ДСК' АД</a>
     </div>
+    <br />
+    <a href="#" id="dskapi_checkout_interest_rates_link" style="cursor: pointer;">
+        Лихвени схеми
+    </a>
+    {if !empty($dskapi_popup_html)}
+        {$dskapi_popup_html nofilter}
+    {/if}
     <div class="dskapi_hr"></div>
     <div class="dskapi_row_footer">
-        <button
-            type="submit"
-            id="dskapi_btn_pay"
-            class="btn btn-primary"
-        >Поръчай</button>
+        <button type="submit" id="dskapi_btn_pay" class="btn btn-primary">Поръчай</button>
     </div>
 </form>

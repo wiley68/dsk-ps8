@@ -666,6 +666,22 @@ class DskPayment extends PaymentModule
         $customer = new Customer($cart->id_customer);
         $token = md5($cart->id . '_' . ($customer->secure_key ?? '') . '_' . Configuration::get('PS_COOKIE_CHECKSUM'));
 
+        // Генерираме информацията за информативния попъп (използваме същата логика като в cart hook-а)
+        $dskapi_popup_html = '';
+        $dskapi_price_for_popup = (float) $cart->getOrderTotal(true);
+        $dskapi_product_id_for_popup = $this->resolveCartProductId();
+
+        if ($dskapi_price_for_popup > 0 && $dskapi_product_id_for_popup > 0) {
+            $popupWidgetHtml = $this->renderDskWidget(
+                $dskapi_price_for_popup,
+                $dskapi_product_id_for_popup,
+                'module:dskpayment/views/templates/hook/dskpayment_checkout_popup.tpl'
+            );
+            if (!empty($popupWidgetHtml)) {
+                $dskapi_popup_html = $popupWidgetHtml;
+            }
+        }
+
         // Предаваме данните към темплейта за POST форма
         $this->context->smarty->assign([
             'dskapi_firstname' => $dskapi_firstname,
@@ -686,7 +702,8 @@ class DskPayment extends PaymentModule
             ),
             'dskapi_logo' => _MODULE_DIR_ . $this->name . '/logo.png',
             'dskapi_token' => $token,
-            'dskapi_cart_id' => $cart->id
+            'dskapi_cart_id' => $cart->id,
+            'dskapi_popup_html' => $dskapi_popup_html
         ]);
 
         $payment_options = [];
