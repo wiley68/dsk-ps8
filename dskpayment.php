@@ -601,7 +601,8 @@ class DskPayment extends PaymentModule
         $dskapi_picture = $paramsdskapi['dsk_picture'];
         $dskapi_container_txt1 = $paramsdskapi['dsk_container_txt1'];
         $dskapi_container_txt2 = $paramsdskapi['dsk_container_txt2'];
-        $dskapi_logo_url = _MODULE_DIR_ . $this->name . '/dsk_logo.png';
+        $dskapi_logo_url = $paramsdskapi['dsk_logo_url'];
+        $dskapi_logo = _MODULE_DIR_ . $this->name . '/logo.png';
 
         if (
             (int)$paramsdskapi['dsk_status'] !== 1 ||
@@ -617,7 +618,8 @@ class DskPayment extends PaymentModule
                 'dskapi_picture' => $dskapi_picture,
                 'dskapi_container_txt1' => $dskapi_container_txt1,
                 'dskapi_container_txt2' => $dskapi_container_txt2,
-                'dskapi_logo_url' => $dskapi_logo_url
+                'dskapi_logo_url' => $dskapi_logo_url,
+                'dskapi_logo' => $dskapi_logo
             ]
         );
 

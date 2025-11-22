@@ -12,7 +12,7 @@
     {else}
         <div class="dskapi_float" onclick="DskapiChangeContainer();">
         {/if}
-        <img src="{$DSKAPI_LIVEURL}/dist/img/dsk_logo.png" class="dskapi-my-float">
+        <img src="{$dskapi_logo}" class="dskapi-my-float">
     </div>
     <div class="dskapi-label-container">
         <div class="dskapi-label-text">
