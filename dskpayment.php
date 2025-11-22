@@ -503,7 +503,7 @@ class DskPayment extends PaymentModule
         $imgPrefix = $dskapi_is_mobile ? 'dskm' : 'dsk';
 
         $link = new Link();
-        $checkoutUrl = $link->getPageLink('order', true, (int) $this->context->language->id);
+        $checkoutUrl = $link->getPageLink('order', true, (int) $this->context->language->id, ['step' => 4]);
 
         $this->context->smarty->assign([
             'dskapi_zaglavie' => $paramsdskapi['dsk_zaglavie'] ?? '',
