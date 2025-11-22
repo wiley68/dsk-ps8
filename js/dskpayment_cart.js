@@ -30,14 +30,14 @@ function dskapi_pogasitelni_vnoski_input_change() {
   var xmlhttpro = createCORSRequest(
     'GET',
     DSKAPI_LIVEURL +
-      '/function/getproductcustom.php?cid=' +
-      dskapi_cid +
-      '&price=' +
-      dskapi_price +
-      '&product_id=' +
-      dskapi_product_id +
-      '&dskapi_vnoski=' +
-      dskapi_vnoski
+    '/function/getproductcustom.php?cid=' +
+    dskapi_cid +
+    '&price=' +
+    dskapi_price +
+    '&product_id=' +
+    dskapi_product_id +
+    '&dskapi_vnoski=' +
+    dskapi_vnoski
   );
   xmlhttpro.onreadystatechange = function () {
     if (this.readyState == 4) {
@@ -77,38 +77,122 @@ function dskapi_pogasitelni_vnoski_input_change() {
   xmlhttpro.send();
 }
 
+/**
+ * Добавя продукта в количката и пренасочва към checkout с избран платежен метод DSK
+ * За използване в cart страницата - директно редирект към checkout без добавяне в количката
+ * 
+ * @return {void}
+ */
+function dskapi_redirectToCheckoutWithPaymentMethod() {
+  // Функция за записване на cookie
+  const setCookie = function (name, value, days) {
+    const expires = new Date();
+    expires.setTime(expires.getTime() + days * 24 * 60 * 60 * 1000);
+    document.cookie =
+      name +
+      '=' +
+      value +
+      ';expires=' +
+      expires.toUTCString() +
+      ';path=/;SameSite=Lax';
+  };
+
+  // Записваме избора на платежен метод в cookie (валиден за 1 час)
+  setCookie('dskpayment_selected', '1', 1 / 24);
+
+  // Редиректваме директно към checkout (в cart страницата продуктът вече е в количката)
+  const checkoutUrl = document.getElementById('dskapi_checkout_url');
+  if (checkoutUrl && checkoutUrl.value) {
+    window.location.href = checkoutUrl.value;
+  } else {
+    // Fallback: опитваме се да намерим checkout URL по друг начин
+    const checkoutLink = document.querySelector('a[href*="order"]');
+    if (checkoutLink) {
+      window.location.href = checkoutLink.href;
+    }
+  }
+}
+
+// Делегиране на събития за бутона "Купи на изплащане" - използваме document-level listener
+// Това работи дори ако елементите се зареждат динамично и се изпълнява само веднъж
+let dskapiBuyCreditHandlerBound = false;
+
 function initDskapiCartWidget() {
+  // Делегиране на събития за бутона "Купи на изплащане" - само веднъж
+  if (!dskapiBuyCreditHandlerBound) {
+    dskapiBuyCreditHandlerBound = true;
+    document.addEventListener('click', function (event) {
+      const target = event.target;
+      // Проверяваме дали кликването е върху бутона или неговите деца
+      if (target && (target.id === 'dskapi_buy_credit' || target.closest('#dskapi_buy_credit'))) {
+        event.preventDefault();
+        event.stopPropagation();
+        event.stopImmediatePropagation();
+
+        const dskapiProductPopupContainer = document.getElementById(
+          'dskapi-product-popup-container'
+        );
+        if (dskapiProductPopupContainer) {
+          dskapiProductPopupContainer.style.display = 'none';
+        }
+
+        dskapi_redirectToCheckoutWithPaymentMethod();
+        return false;
+      }
+    }, true); // Използваме capture phase за по-ранно intercept-ване
+  }
+
+  // Задаваме cursor стил на бутона ако съществува
+  const dskapi_buy_credit = document.getElementById('dskapi_buy_credit');
+  if (dskapi_buy_credit !== null) {
+    dskapi_buy_credit.style.cursor = 'pointer';
+  }
+
+  // Инициализираме основния бутон btn_dskapi
   const btn_dskapi = document.getElementById('btn_dskapi');
   if (btn_dskapi !== null && btn_dskapi.dataset.dskapiBound !== '1') {
     btn_dskapi.dataset.dskapiBound = '1';
-    const dskapi_button_status = parseInt(
-      document.getElementById('dskapi_button_status').value
-    );
+
+    const dskapi_button_status_el = document.getElementById('dskapi_button_status');
+    if (!dskapi_button_status_el) {
+      return; // Ако няма button_status елемент, не продължаваме
+    }
+
+    const dskapi_button_status = parseInt(dskapi_button_status_el.value) || 0;
     const dskapiProductPopupContainer = document.getElementById(
       'dskapi-product-popup-container'
     );
     const dskapi_back_credit = document.getElementById('dskapi_back_credit');
-    const dskapi_buy_credit = document.getElementById('dskapi_buy_credit');
-    const dskapi_buy_buttons_submit = document.querySelectorAll(
-      'button[data-button-action=add-to-cart]'
-    );
 
     const dskapi_price = document.getElementById('dskapi_price');
     const dskapi_maxstojnost = document.getElementById('dskapi_maxstojnost');
+
+    if (!dskapi_price || !dskapi_maxstojnost) {
+      return; // Ако няма нужните елементи, не продължаваме
+    }
+
     let dskapi_price1 = dskapi_price.value;
     let dskapi_quantity = 1;
     let dskapi_priceall = parseFloat(dskapi_price1) * dskapi_quantity;
 
     btn_dskapi.addEventListener('click', (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+
       if (dskapi_button_status == 1) {
-        console.log('Директно към поръчката с извикан платежен метод');
+        dskapi_redirectToCheckoutWithPaymentMethod();
+        return false;
       } else {
-        const dskapi_eur = parseInt(
-          document.getElementById('dskapi_eur').value
-        );
-        const dskapi_currency_code = document.getElementById(
-          'dskapi_currency_code'
-        ).value;
+        const dskapi_eur_el = document.getElementById('dskapi_eur');
+        const dskapi_currency_code_el = document.getElementById('dskapi_currency_code');
+
+        if (!dskapi_eur_el || !dskapi_currency_code_el) {
+          return false;
+        }
+
+        const dskapi_eur = parseInt(dskapi_eur_el.value) || 0;
+        const dskapi_currency_code = dskapi_currency_code_el.value;
+
         switch (dskapi_eur) {
           case 0:
             break;
@@ -126,33 +210,75 @@ function initDskapiCartWidget() {
         }
 
         const dskapi_price_txt = document.getElementById('dskapi_price_txt');
-        dskapi_price_txt.value = dskapi_priceall.toFixed(2);
+        if (dskapi_price_txt) {
+          dskapi_price_txt.value = dskapi_priceall.toFixed(2);
+        }
+
         if (dskapi_priceall <= parseFloat(dskapi_maxstojnost.value)) {
-          dskapiProductPopupContainer.style.display = 'block';
-          dskapi_pogasitelni_vnoski_input_change();
+          if (dskapiProductPopupContainer) {
+            dskapiProductPopupContainer.style.display = 'block';
+            dskapi_pogasitelni_vnoski_input_change();
+          }
         } else {
           alert(
             'Максимално позволената цена за кредит ' +
-              parseFloat(dskapi_maxstojnost.value).toFixed(2) +
-              ' е надвишена!'
+            parseFloat(dskapi_maxstojnost.value).toFixed(2) +
+            ' е надвишена!'
           );
         }
       }
-    });
+      return false;
+    }, true); // Използваме capture phase
 
-    dskapi_back_credit.addEventListener('click', (event) => {
-      dskapiProductPopupContainer.style.display = 'none';
-    });
-
-    dskapi_buy_credit.addEventListener('click', (event) => {
-      dskapiProductPopupContainer.style.display = 'none';
-      console.log('Правим поръчка и прехвърляме към Банката');
-    });
+    if (dskapi_back_credit) {
+      dskapi_back_credit.addEventListener('click', (event) => {
+        event.preventDefault();
+        if (dskapiProductPopupContainer) {
+          dskapiProductPopupContainer.style.display = 'none';
+        }
+        return false;
+      }, true);
+    }
   }
 }
 
-document.addEventListener('DOMContentLoaded', initDskapiCartWidget);
-if (typeof prestashop !== 'undefined' && prestashop.on) {
-  prestashop.on('updatedCart', initDskapiCartWidget);
-  prestashop.on('updateCart', initDskapiCartWidget);
+// Функция за инициализация с няколко опита
+function initDskapiCartWidgetWithRetry() {
+  let attempts = 0;
+  const maxAttempts = 10;
+
+  const tryInit = function () {
+    attempts++;
+
+    // Проверяваме дали нужните елементи съществуват
+    const btn_dskapi = document.getElementById('btn_dskapi');
+    const dskapi_buy_credit = document.getElementById('dskapi_buy_credit');
+    const dskapi_button_status = document.getElementById('dskapi_button_status');
+
+    if (btn_dskapi || dskapi_buy_credit || dskapi_button_status) {
+      initDskapiCartWidget();
+    } else if (attempts < maxAttempts) {
+      setTimeout(tryInit, 200);
+    }
+  };
+
+  tryInit();
 }
+
+document.addEventListener('DOMContentLoaded', function () {
+  initDskapiCartWidgetWithRetry();
+});
+
+if (typeof prestashop !== 'undefined' && prestashop.on) {
+  prestashop.on('updatedCart', function () {
+    setTimeout(initDskapiCartWidgetWithRetry, 100);
+  });
+  prestashop.on('updateCart', function () {
+    setTimeout(initDskapiCartWidgetWithRetry, 100);
+  });
+}
+
+// Също опитваме се след пълно зареждане на страницата
+window.addEventListener('load', function () {
+  setTimeout(initDskapiCartWidgetWithRetry, 300);
+});

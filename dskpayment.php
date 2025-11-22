@@ -60,7 +60,7 @@ class DskPayment extends PaymentModule
 
         parent::__construct();
 
-        $this->displayName = 'DSK Credit API покупки на Кредит';
+        $this->displayName = 'DSK Credit покупки на Кредит';
         $this->description = 'Дава възможност на Вашите клиенти да закупуват стока на изплащане с DSK Credit API.';
         $this->confirmUninstall = 'Сигурни ли сте, че желаете да го деинсталирате?';
         if (!Configuration::get('DSKPAYMENT_NAME')) {
@@ -465,12 +465,12 @@ class DskPayment extends PaymentModule
 
         if (
             !isset(
-            $paramsdskapi['dsk_options'],
-            $paramsdskapi['dsk_is_visible'],
-            $paramsdskapi['dsk_status'],
-            $paramsdskapi['dsk_button_status'],
-            $paramsdskapi['dsk_reklama']
-        )
+                $paramsdskapi['dsk_options'],
+                $paramsdskapi['dsk_is_visible'],
+                $paramsdskapi['dsk_status'],
+                $paramsdskapi['dsk_button_status'],
+                $paramsdskapi['dsk_reklama']
+            )
         ) {
             return '';
         }
@@ -684,6 +684,7 @@ class DskPayment extends PaymentModule
                 ['dskapi_card' => 0],
                 true
             ),
+            'dskapi_logo' => _MODULE_DIR_ . $this->name . '/logo.png',
             'dskapi_token' => $token,
             'dskapi_cart_id' => $cart->id
         ]);
@@ -691,8 +692,7 @@ class DskPayment extends PaymentModule
         $payment_options = [];
         $newOption_DSK = new PaymentOption();
         $newOption_DSK->setModuleName($this->name);
-        $newOption_DSK->setCallToActionText('Банка ДСК');
-        $newOption_DSK->setLogo(_MODULE_DIR_ . $this->name . '/logo.png');
+        $newOption_DSK->setCallToActionText($this->displayName);
         $newOption_DSK->setAdditionalInformation($this->fetch('module:dskpayment/views/templates/hook/dskpayment_checkout.tpl'));
         $payment_options[] = $newOption_DSK;
 
