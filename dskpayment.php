@@ -601,7 +601,7 @@ class DskPayment extends PaymentModule
         $dskapi_picture = $paramsdskapi['dsk_picture'];
         $dskapi_container_txt1 = $paramsdskapi['dsk_container_txt1'];
         $dskapi_container_txt2 = $paramsdskapi['dsk_container_txt2'];
-        $dskapi_logo_url = $paramsdskapi['dsk_logo_url'];
+        $dskapi_logo_url = _MODULE_DIR_ . $this->name . '/dsk_logo.png';
 
         if (
             (int)$paramsdskapi['dsk_status'] !== 1 ||
@@ -703,7 +703,7 @@ class DskPayment extends PaymentModule
         }
 
         $this->context->smarty->assign([
-            'dskapi_logo' => _MODULE_DIR_ . $this->name . '/logo.png'
+            'dskapi_logo' => _MODULE_DIR_ . $this->name . '/dsk_logo.png'
         ]);
         $dskapi_firstname = isset($this->context->customer->firstname) ? trim($this->context->customer->firstname) : '';
         $dskapi_lastname = isset($this->context->customer->lastname) ? trim($this->context->customer->lastname) : '';
@@ -779,7 +779,7 @@ class DskPayment extends PaymentModule
                 ['dskapi_card' => 0],
                 true
             ),
-            'dskapi_logo' => _MODULE_DIR_ . $this->name . '/logo.png',
+            'dskapi_logo' => _MODULE_DIR_ . $this->name . '/dsk_logo.png',
             'dskapi_token' => $token,
             'dskapi_cart_id' => $cart->id,
             'dskapi_popup_html' => $dskapi_popup_html
