@@ -89,7 +89,6 @@ function initDskapiWidget() {
     );
     const dskapi_back_credit = document.getElementById('dskapi_back_credit');
     const dskapi_buy_credit = document.getElementById('dskapi_buy_credit');
-    const dskapi_add_to_cart = document.getElementById('dskapi_add_to_cart');
     const dskapi_buy_buttons_submit = document.querySelectorAll(
       'button[data-button-action=add-to-cart]'
     );
@@ -175,22 +174,66 @@ function initDskapiWidget() {
     });
 
     dskapi_buy_credit.addEventListener('click', (event) => {
+      event.preventDefault();
       dskapiProductPopupContainer.style.display = 'none';
-      console.log('Правим поръчка и прехвърляме към Банката');
-    });
 
-    if (dskapi_add_to_cart) {
-      dskapi_add_to_cart.addEventListener('click', (event) => {
-        dskapiProductPopupContainer.style.display = 'none';
-        if (dskapi_buy_buttons_submit.length) {
-          document
-            .querySelectorAll('button[data-button-action="add-to-cart"]')
-            .forEach(function (button) {
-              button.click();
-            });
+      // Функция за записване на cookie
+      const setCookie = function (name, value, days) {
+        const expires = new Date();
+        expires.setTime(expires.getTime() + days * 24 * 60 * 60 * 1000);
+        document.cookie =
+          name +
+          '=' +
+          value +
+          ';expires=' +
+          expires.toUTCString() +
+          ';path=/;SameSite=Lax';
+      };
+
+      // Записваме избора на платежен метод в cookie (валиден за 1 час)
+      setCookie('dskpayment_selected', '1', 1 / 24);
+
+      // Намираме стандартния бутон за добавяне в количката
+      const addToCartButton = document.querySelector(
+        'button[data-button-action=add-to-cart]'
+      );
+
+      if (addToCartButton) {
+        // Регистрираме event listener преди да кликнем на бутона
+        let cartUpdated = false;
+        const checkoutRedirect = function () {
+          if (!cartUpdated) {
+            cartUpdated = true;
+            const checkoutUrl = document.getElementById(
+              'dskapi_checkout_url'
+            ).value;
+            if (checkoutUrl) {
+              window.location.href = checkoutUrl;
+            }
+          }
+        };
+
+        // Слушаме за успешно добавяне в количката
+        if (typeof prestashop !== 'undefined' && prestashop.on) {
+          prestashop.on('updateCart', checkoutRedirect);
+          prestashop.on('updatedCart', checkoutRedirect);
         }
-      });
-    }
+
+        // Добавяме продукта в количката чрез кликване на стандартния бутон
+        addToCartButton.click();
+
+        // Fallback: ако след 1 секунда не е настъпило събитие, редиректваме
+        setTimeout(checkoutRedirect, 1000);
+      } else {
+        // Ако няма стандартен бутон, редиректваме директно към чекаута
+        const checkoutUrl = document.getElementById(
+          'dskapi_checkout_url'
+        ).value;
+        if (checkoutUrl) {
+          window.location.href = checkoutUrl;
+        }
+      }
+    });
   }
 }
 

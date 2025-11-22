@@ -502,6 +502,9 @@ class DskPayment extends PaymentModule
         $prefix = $dskapi_is_mobile ? 'dskapim' : 'dskapi';
         $imgPrefix = $dskapi_is_mobile ? 'dskm' : 'dsk';
 
+        $link = new Link();
+        $checkoutUrl = $link->getPageLink('order', true, (int) $this->context->language->id);
+
         $this->context->smarty->assign([
             'dskapi_zaglavie' => $paramsdskapi['dsk_zaglavie'] ?? '',
             'dskapi_custom_button_status' => (int) ($paramsdskapi['dsk_custom_button_status'] ?? 0),
@@ -536,7 +539,8 @@ class DskPayment extends PaymentModule
             'dskapi_sign' => $dskapi_sign,
             'dskapi_currency_code' => $dskapi_currency_code,
             'dskapi_eur' => $dskapi_eur,
-            'dskapi_gap' => $dskapi_gap
+            'dskapi_gap' => $dskapi_gap,
+            'dskapi_checkout_url' => $checkoutUrl
         ]);
 
         return $this->fetch($templatePath);

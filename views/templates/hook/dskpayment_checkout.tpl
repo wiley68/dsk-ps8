@@ -89,6 +89,6 @@
             type="submit"
             id="dskapi_btn_pay"
             class="btn btn-primary"
-        >Изпрати заявката</button>
+        >Поръчай</button>
     </div>
 </form>
