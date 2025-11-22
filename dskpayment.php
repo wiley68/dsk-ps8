@@ -671,7 +671,8 @@ class DskPayment extends PaymentModule
         $dskapi_price_for_popup = (float) $cart->getOrderTotal(true);
         $dskapi_product_id_for_popup = $this->resolveCartProductId();
 
-        if ($dskapi_price_for_popup > 0 && $dskapi_product_id_for_popup > 0) {
+        // Генерираме попъпа дори когато има повече продукти (product_id = 0), както в cart hook-а
+        if ($dskapi_price_for_popup > 0) {
             $popupWidgetHtml = $this->renderDskWidget(
                 $dskapi_price_for_popup,
                 $dskapi_product_id_for_popup,

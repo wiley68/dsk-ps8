@@ -34,10 +34,10 @@
             относно обработването на лични данни на физически лица от 'Банка ДСК' АД</a>
     </div>
     <br />
-    <a href="#" id="dskapi_checkout_interest_rates_link" style="cursor: pointer;">
-        Лихвени схеми
-    </a>
     {if !empty($dskapi_popup_html)}
+        <a href="#" id="dskapi_checkout_interest_rates_link" style="cursor: pointer;">
+            Лихвени схеми
+        </a>
         {$dskapi_popup_html nofilter}
     {/if}
     <div class="dskapi_hr"></div>
