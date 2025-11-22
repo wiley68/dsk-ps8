@@ -38,6 +38,7 @@ class DskPayment extends PaymentModule
         'ActionFrontControllerSetMedia',
         'displayProductAdditionalInfo',
         'displayShoppingCart',
+        'displayHome',
         'paymentOptions',
         'actionOrderGridDefinitionModifier',
         'actionOrderGridQueryBuilderModifier',
@@ -270,6 +271,33 @@ class DskPayment extends PaymentModule
      */
     public function hookActionFrontControllerSetMedia($params): void
     {
+        if ('index' === $this->context->controller->php_self) {
+            $homeCssPath = _PS_MODULE_DIR_ . $this->name . '/css/dskapi_rek.css';
+            $homeJsPath = _PS_MODULE_DIR_ . $this->name . '/js/dskapi_rek.js';
+
+            if (file_exists($homeCssPath)) {
+                $this->context->controller->registerStylesheet(
+                    'dskapipayment-home-page',
+                    'modules/' . $this->name . '/css/dskapi_rek.css',
+                    [
+                        'media' => 'all',
+                        'priority' => 200,
+                        'version' => filemtime($homeCssPath)
+                    ]
+                );
+            }
+            if (file_exists($homeJsPath)) {
+                $this->context->controller->registerJavascript(
+                    'dskapipayment-home-page-js',
+                    'modules/' . $this->name . '/js/dskapi_rek.js',
+                    [
+                        'priority' => 200,
+                        'attribute' => 'async',
+                        'version' => filemtime($homeJsPath)
+                    ]
+                );
+            }
+        }
         if ('product' === $this->context->controller->php_self) {
             $productJsPath = _PS_MODULE_DIR_ . $this->name . '/js/dskpayment_product.js';
             $productCssPath = _PS_MODULE_DIR_ . $this->name . '/css/dskpayment_product.css';
@@ -544,6 +572,56 @@ class DskPayment extends PaymentModule
         ]);
 
         return $this->fetch($templatePath);
+    }
+
+    /**
+     * Renders the DSK promotional banner/panel on the home page.
+     *
+     * @param array $params
+     *
+     * @return string
+     */
+    public function hookDisplayHome($params): string
+    {
+        $dskapi_cid = (string) Configuration::get('DSKAPI_CID');
+        $dskapi_reklama = (int) Configuration::get('DSKAPI_REKLAMA');
+        $dskapi_status = (int) Configuration::get('DSKAPI_STATUS');
+
+        if ($dskapi_reklama == 0 || $dskapi_status == 0) {
+            return '';
+        }
+
+        $paramsdskapi = $this->makeApiRequest('/function/getrek.php?cid=' . urlencode($dskapi_cid), 6);
+        if ($paramsdskapi === null) {
+            return '';
+        }
+
+        $dskapi_deviceis = $this->isMobileDevice() ? "mobile" : "pc";
+
+        $dskapi_picture = $paramsdskapi['dsk_picture'];
+        $dskapi_container_txt1 = $paramsdskapi['dsk_container_txt1'];
+        $dskapi_container_txt2 = $paramsdskapi['dsk_container_txt2'];
+        $dskapi_logo_url = $paramsdskapi['dsk_logo_url'];
+
+        if (
+            (int)$paramsdskapi['dsk_status'] !== 1 ||
+            (int)$paramsdskapi['dsk_container_status'] !== 1
+        ) {
+            return '';
+        }
+
+        $this->context->smarty->assign(
+            [
+                'dskapi_deviceis' => $dskapi_deviceis,
+                'DSKAPI_LIVEURL' => DSKAPI_LIVEURL,
+                'dskapi_picture' => $dskapi_picture,
+                'dskapi_container_txt1' => $dskapi_container_txt1,
+                'dskapi_container_txt2' => $dskapi_container_txt2,
+                'dskapi_logo_url' => $dskapi_logo_url
+            ]
+        );
+
+        return $this->fetch('module:dskpayment/views/templates/hook/dskapipanel.tpl');
     }
 
     /**
