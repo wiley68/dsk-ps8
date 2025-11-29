@@ -61,8 +61,8 @@ class DskPayment extends PaymentModule
 
         parent::__construct();
 
-        $this->displayName = 'DSK Credit покупки на Кредит';
-        $this->description = 'Дава възможност на Вашите клиенти да закупуват стока на изплащане с DSK Credit API.';
+        $this->displayName = 'Банка ДСК покупки на Кредит';
+        $this->description = 'Дава възможност на Вашите клиенти да закупуват стока на изплащане с Банка ДСК.';
         $this->confirmUninstall = 'Сигурни ли сте, че желаете да го деинсталирате?';
         if (!Configuration::get('DSKPAYMENT_NAME')) {
             $this->warning = 'Няма предоставено име';
@@ -83,7 +83,7 @@ class DskPayment extends PaymentModule
             (bool) $this->registerHook(static::HOOKS) &&
             Configuration::updateValue(
                 'DSKPAYMENT_NAME',
-                'DSK Credit API покупки на Кредит'
+                'Банка ДСК покупки на Кредит'
             ) &&
             $this->installDb() &&
             $this->installOrderStates();
@@ -151,7 +151,7 @@ class DskPayment extends PaymentModule
     {
         return $this->createOrderState(
             'PS_OS_DSKPAYMENT',
-            'DSK Credit',
+            'Банка ДСК',
             '#3d70b2',
             true,
             true,
@@ -915,7 +915,7 @@ class DskPayment extends PaymentModule
 
         /** @var \PrestaShop\PrestaShop\Core\Grid\Column\Type\DataColumn $dskStatusColumn */
         $dskStatusColumn = new \PrestaShop\PrestaShop\Core\Grid\Column\Type\DataColumn('dsk_payment_status');
-        $dskStatusColumn->setName($this->l('DSK Статус'));
+        $dskStatusColumn->setName($this->l('Банка ДСК Статус'));
         $dskStatusColumn->setOptions([
             'field' => 'dsk_payment_status',
         ]);
