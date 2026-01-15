@@ -44,9 +44,12 @@ final class DskPaymentConfigurationDataConfiguration implements DataConfiguratio
         $errors = [];
 
         if ($this->validateConfiguration($configuration)) {
-            $this->configuration->set(static::DSKAPI_STATUS, $configuration['dskapi_status']);
+            $dskapiStatus = (int) ($configuration['dskapi_status'] ?? 0);
+            $dskapiReklama = (int) ($configuration['dskapi_reklama'] ?? 0);
+
+            $this->configuration->set(static::DSKAPI_STATUS, $dskapiStatus);
             $this->configuration->set(static::DSKAPI_CID, $configuration['dskapi_cid']);
-            $this->configuration->set(static::DSKAPI_REKLAMA, $configuration['dskapi_reklama']);
+            $this->configuration->set(static::DSKAPI_REKLAMA, $dskapiReklama);
 
             // Нормализираме dskapi_gap - ако е празно или не е валидно число, записваме 0
             $dskapiGap = $configuration['dskapi_gap'] ?? null;
@@ -69,9 +72,6 @@ final class DskPaymentConfigurationDataConfiguration implements DataConfiguratio
      */
     public function validateConfiguration(array $configuration): bool
     {
-        return
-            isset($configuration['dskapi_status']) &&
-            isset($configuration['dskapi_cid']) &&
-            isset($configuration['dskapi_reklama']);
+        return isset($configuration['dskapi_cid']);
     }
 }
