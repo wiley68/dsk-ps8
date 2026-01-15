@@ -34,7 +34,10 @@
         {if $dskapi_isvnoska eq 1}
             <tr>
                 <td class="dskapi_button_table">
-                    <p>{$dskapi_vnoski} x {$dskapi_vnoska} {$dskapi_sign}</p>
+                    <p>
+                        <span id="dskapi_vnoski_txt">{$dskapi_vnoski}</span> x
+                        <span id="dskapi_vnoska_txt">{$dskapi_vnoska}</span> {$dskapi_sign}
+                    </p>
                 </td>
             </tr>
         {/if}
